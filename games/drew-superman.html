@@ -389,7 +389,7 @@ drewImg.src = '../images/Drew Flying.png';
     ctx.fillStyle='rgba(59,130,246,0.06)'; ctx.fillRect(0,H-32,W,32);
   }
 
-  function drawDrew(){
+ function drawDrew(){
   // Glow around Drew
   const glow = ctx.createRadialGradient(
     D.x + D.w / 2,
@@ -409,7 +409,6 @@ drewImg.src = '../images/Drew Flying.png';
   // Draw Drew's transparent PNG if loaded
   if (drewImg.complete && drewImg.naturalWidth > 0) {
     ctx.save();
-    // Preserve aspect ratio of the source image inside the D.w x D.h box
     const srcW = drewImg.width;
     const srcH = drewImg.height;
     const aspect = srcW / srcH || 1;
