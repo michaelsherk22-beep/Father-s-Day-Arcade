@@ -96,7 +96,7 @@ fathers-day-arcade/
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/michaelsherk22/fathers-day-arcade.git
+   git clone https://github.com/michaelsherk22-beep/Father-s-Day-Arcade.git
    ```
 2. Open the folder and double-click `index.html`
 3. That's it — no server needed! ✅
