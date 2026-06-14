@@ -138,9 +138,9 @@
   const logEl     = document.getElementById('logEl');
   const btnPause  = document.getElementById('btnPause');
 
-  // Drew's flying image (white bg — we'll composite cleanly)
-  const drewImg = new Image();
-  drewImg.src = 'Drew-Flying.jpg';
+// Drew's flying image from the shared images folder
+const drewImg = new Image();
+drewImg.src = '../images/Drew Flying.png';
 
   let keys = {}, keyJustPressed = {};
   let score=0, wave=1, hp=300, maxHp=300;
