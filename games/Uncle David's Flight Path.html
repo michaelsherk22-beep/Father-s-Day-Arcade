@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Uncle David's Flight Run</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <style>
+    :root {
+      --bg:#020617; --panel:#020617; --panel-alt:#020617;
+      --border:rgba(148,163,184,0.25); --accent:#38bdf8; --accent-soft:#e0f2fe;
+      --good:#22c55e; --danger:#f97373; --muted:#94a3b8; --text:#e5e7eb;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 10% 0%,#1e293b 0%,transparent 55%),
+        radial-gradient(circle at 80% 100%,#0f172a 0%,transparent 55%),
+        linear-gradient(180deg,#020617 0%,#020617 100%);
+      color:var(--text);font-family:system-ui,-apple-system,sans-serif;
+      display:flex;align-items:flex-start;justify-content:center;
+      padding:16px 10px 32px;
+    }
+    #app{width:min(100%,1080px);display:flex;flex-direction:column;gap:16px;}
+
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 16px;
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 55%);
+      border-radius:18px;border:1px solid var(--border);flex-wrap:wrap;
+      box-shadow:0 18px 40px rgba(0,0,0,0.8);
+    }
+    .hdr-left{display:flex;gap:14px;align-items:center;}
+    .avatar{
+      width:88px;height:88px;border-radius:50%;overflow:hidden;flex-shrink:0;
+      border:2px solid var(--accent);
+      box-shadow:0 0 18px rgba(56,189,248,0.6);
+      background:#0ea5e9;
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;}
+    .title-block{display:flex;flex-direction:column;gap:3px;}
+    .title{
+      font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:800;
+      text-transform:uppercase;letter-spacing:0.14em;
+      background:linear-gradient(135deg,#38bdf8,#e0f2fe,#facc15);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .subtitle{font-size:0.86rem;color:var(--muted);}
+    .hdr-right{
+      display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:1;
+      min-width:190px;
+    }
+    .badge{
+      font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;
+      padding:4px 10px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.7);color:var(--accent-soft);
+      background:rgba(15,23,42,0.9);
+    }
+    .status-chip{font-size:0.78rem;color:var(--accent-soft);}
+
+    main{
+      display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,0.8fr);gap:14px;
+    }
+    @media(max-width:880px){main{grid-template-columns:1fr;}}
+
+    .panel{
+      background:radial-gradient(circle at 50% 0%,#020617 0%,#020617 70%);
+      border-radius:16px;border:1px solid rgba(15,23,42,0.9);
+      padding:12px 12px 14px;
+      box-shadow:0 14px 32px rgba(0,0,0,0.85);
+    }
+    .panel-header{
+      display:flex;justify-content:space-between;align-items:center;gap:8px;
+      padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px;
+    }
+    .panel-title{
+      font-size:0.78rem;text-transform:uppercase;letter-spacing:0.14em;
+      color:var(--accent-soft);
+    }
+    .panel-sub{font-size:0.78rem;color:var(--muted);}
+
+    .game-wrapper{
+      background:radial-gradient(circle at 50% 0%,#0ea5e9 0%,#020617 80%);
+      border-radius:14px;border:1px solid rgba(15,23,42,0.9);
+      padding:8px;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    #gameCanvas{
+      width:100%;max-width:100%;border-radius:12px;
+      background:linear-gradient(180deg,#0ea5e9 0%,#1d4ed8 100%);
+      box-shadow:0 12px 26px rgba(15,23,42,0.9);
+    }
+
+    .info-row{font-size:0.8rem;color:var(--muted);margin-top:4px;}
+
+    .btn{
+      border-radius:999px;border:1px solid var(--border);padding:7px 14px;
+      font-size:0.75rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.08em;cursor:pointer;
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
+      color:var(--text);
+      display:inline-flex;align-items:center;gap:6px;
+      transition:all 0.12s;margin-right:6px;margin-top:6px;
+    }
+    .btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 4px 12px rgba(0,0,0,0.9);
+    }
+    .btn:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+    .btn.primary{
+      background:radial-gradient(circle at 0 0,#38bdf8 0%,#0369a1 45%,#020617 75%);
+      color:#020617;border-color:#38bdf8;
+    }
+    .btn.success{
+      background:radial-gradient(circle at 0 0,#22c55e 0%,#15803d 45%,#020617 75%);
+      color:#020617;border-color:#22c55e;
+    }
+
+    .log-panel{
+      background:radial-gradient(circle at 0 0,#020617 0%,#020617 85%);
+      border-radius:12px;border:1px solid rgba(30,64,175,0.6);
+      padding:8px 10px;max-height:220px;overflow-y:auto;font-size:0.8rem;
+      margin-top:8px;
+    }
+    .log-entry{margin-bottom:4px;color:var(--accent-soft);}
+    .log-entry.system{color:var(--muted);font-style:italic;}
+
+    .result-banner{
+      margin-top:10px;font-size:0.9rem;font-weight:700;text-align:center;
+      padding:8px 10px;border-radius:12px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
+      display:none;
+    }
+    .result-banner.win{
+      display:block;color:var(--good);
+      border-color:rgba(34,197,94,0.7);box-shadow:0 0 14px rgba(22,163,74,0.7);
+    }
+    .result-banner.lose{
+      display:block;color:var(--danger);
+      border-color:rgba(248,113,113,0.7);box-shadow:0 0 14px rgba(248,113,113,0.6);
+    }
+
+    .controls{
+      display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;
+      font-size:0.8rem;color:var(--muted);
+    }
+
+    .touch-controls{
+      margin-top:10px;
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+    }
+    .touch-row{
+      display:flex;gap:6px;
+    }
+    .touch-btn{
+      width:38px;height:38px;border-radius:10px;border:1px solid var(--border);
+      background:rgba(15,23,42,0.85);color:var(--accent-soft);
+      font-size:0.8rem;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+    }
+    .touch-btn:active{
+      background:rgba(56,189,248,0.4);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="hdr-left">
+      <div class="avatar"><img src="Uncle-David.jpg" alt="Uncle David"></div>
+      <div class="title-block">
+        <div class="title">Uncle David's Flight Run</div>
+        <div class="subtitle">Guide the jet safely from Point A to Point B without hitting any obstacles.</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="badge">Captain · American Airlines</div>
+      <div class="status-chip" id="topStatus">Ready for takeoff</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Flight Path</div>
+        <div class="panel-sub" id="turnInfo">Reach the green destination zone.</div>
+      </div>
+
+      <div class="game-wrapper">
+        <canvas id="gameCanvas" width="720" height="360"></canvas>
+        <div class="info-row" id="hintText">
+          Use arrow keys or WASD to fly. Avoid birds, storms, and mountains. Get to the green zone on the right.
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Flight Deck</div>
+        <div class="panel-sub">Controls & mission log.</div>
+      </div>
+
+      <button class="btn primary" id="startBtn">Start Flight</button>
+      <button class="btn success" id="resetBtn">Reset</button>
+
+      <div class="controls">
+        <div>Keyboard: Arrows / WASD to move, Space for a short speed boost.</div>
+      </div>
+
+      <div class="touch-controls">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:2px;">Touch controls</div>
+        <div class="touch-row">
+          <div style="width:38px;"></div>
+          <button class="touch-btn" data-dir="up">▲</button>
+          <div style="width:38px;"></div>
+        </div>
+        <div class="touch-row">
+          <button class="touch-btn" data-dir="left">◀</button>
+          <button class="touch-btn" data-dir="boost">⏵</button>
+          <button class="touch-btn" data-dir="right">▶</button>
+        </div>
+        <div class="touch-row">
+          <div style="width:38px;"></div>
+          <button class="touch-btn" data-dir="down">▼</button>
+          <div style="width:38px;"></div>
+        </div>
+      </div>
+
+      <div class="log-panel" id="logPanel"></div>
+      <div class="result-banner" id="resultBanner"></div>
+    </aside>
+  </main>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const topStatus = document.getElementById("topStatus");
+const turnInfo = document.getElementById("turnInfo");
+const hintText = document.getElementById("hintText");
+const startBtn = document.getElementById("startBtn");
+const resetBtn = document.getElementById("resetBtn");
+const logPanel = document.getElementById("logPanel");
+const resultBanner = document.getElementById("resultBanner");
+const touchButtons = document.querySelectorAll(".touch-btn");
+
+const GAME_STATE = {
+  READY: "ready",
+  RUNNING: "running",
+  OVER: "over"
+};
+
+let state = GAME_STATE.READY;
+
+// Endless flight stats
+let distance = 0;       // meters flown
+let bestDistance = 0;
+
+// plane stays near left, world scrolls left
+const plane = {
+  x: 120,
+  y: canvas.height/2,
+  vy: 0,
+  size: 18,
+  boostTime: 0
+};
+
+// Horizontal scroll speed (world moving left)
+let scrollSpeed = 2.4;
+
+let obstacles = [];
+let clouds = [];
+
+let keys = {};
+
+function log(msg, type="system"){
+  const div = document.createElement("div");
+  div.className = "log-entry " + type;
+  div.textContent = msg;
+  logPanel.appendChild(div);
+  logPanel.scrollTop = logPanel.scrollHeight;
+}
+
+function resetGame(){
+  state = GAME_STATE.READY;
+  distance = 0;
+  scrollSpeed = 2.4;
+  plane.y = canvas.height/2;
+  plane.vy = 0;
+  plane.boostTime = 0;
+  obstacles = [];
+  clouds = [];
+  initClouds();
+  spawnInitialObstacles();
+  resultBanner.style.display = "none";
+  resultBanner.className = "result-banner";
+  topStatus.textContent = "Ready for takeoff · 0 m";
+  turnInfo.textContent = "Fly as far as you can without hitting obstacles.";
+  hintText.textContent = "Continuous flight. Avoid birds, storms, and mountains. See how far you can go!";
+  logPanel.innerHTML = "";
+  log("Endless training loaded. Smooth and steady, co-pilot.", "system");
+  draw();
+}
+
+function initClouds(){
+  clouds = [];
+  for (let i=0;i<10;i++){
+    clouds.push({
+      x: Math.random()*canvas.width,
+      y: 30 + Math.random()*(canvas.height-80),
+      r: 18 + Math.random()*10,
+      speed: 0.4 + Math.random()*0.4
+    });
+  }
+}
+
+function spawnInitialObstacles(){
+  let x = canvas.width + 80;
+  for (let i=0;i<8;i++){
+    x += 80 + Math.random()*80;
+    obstacles.push(makeObstacleAt(x));
+  }
+}
+
+function makeObstacleAt(x){
+  const rows = 5;
+  const laneHeight = canvas.height / rows;
+  const row = Math.floor(Math.random()*rows);
+  const y = row*laneHeight + 20 + Math.random()*(laneHeight-40);
+  const types = ["bird","storm","mountain"];
+  const type = types[Math.floor(Math.random()*types.length)];
+  return {x,y,type,w:26,h:26};
+}
+
+function startGame(){
+  if (state === GAME_STATE.RUNNING) return;
+  state = GAME_STATE.RUNNING;
+  topStatus.textContent = "In flight · 0 m";
+  log("Continuous flight engaged. Stay on course and enjoy the ride.", "system");
+  requestAnimationFrame(gameLoop);
+}
+
+function gameLoop(){
+  if (state !== GAME_STATE.RUNNING) return;
+  update();
+  draw();
+  if (state === GAME_STATE.RUNNING) requestAnimationFrame(gameLoop);
+}
+
+function update(){
+  // vertical control
+  if (keys["ArrowUp"] || keys["KeyW"]) plane.vy = -2.1;
+  else if (keys["ArrowDown"] || keys["KeyS"]) plane.vy = 2.1;
+  else plane.vy = 0;
+
+  // gentle horizontal wiggle if player taps left/right (small effect)
+  if (keys["ArrowLeft"] || keys["KeyA"]) plane.x -= 0.8;
+  if (keys["ArrowRight"] || keys["KeyD"]) plane.x += 0.8;
+  if (plane.x < 80) plane.x = 80;
+  if (plane.x > canvas.width-80) plane.x = canvas.width-80;
+
+  // boost makes scroll a bit faster but not crazy
+  if ((keys["Space"] || keys["KeyK"]) && plane.boostTime <= 0){
+    plane.boostTime = 32;
+    log("Captain adds a little extra thrust!", "system");
+  }
+  if (plane.boostTime > 0){
+    plane.boostTime--;
+    scrollSpeed = 3.1;
+  } else {
+    scrollSpeed = 2.4;
+  }
+
+  // move plane vertically
+  plane.y += plane.vy;
+  if (plane.y < 20) plane.y = 20;
+  if (plane.y > canvas.height-20) plane.y = canvas.height-20;
+
+  // move world left
+  distance += scrollSpeed;
+  topStatus.textContent = "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)";
+
+  // move clouds
+  for (const c of clouds){
+    c.x -= c.speed;
+    if (c.x < -60){
+      c.x = canvas.width + 40;
+      c.y = 30 + Math.random()*(canvas.height-80);
+      c.r = 18 + Math.random()*10;
+    }
+  }
+
+  // move obstacles
+  for (const o of obstacles){
+    o.x -= scrollSpeed;
+  }
+
+  // remove off-screen obstacles and add new ones
+  obstacles = obstacles.filter(o => o.x > -80);
+  while (obstacles.length < 8){
+    const lastX = obstacles.length ? Math.max(...obstacles.map(o=>o.x)) : canvas.width;
+    const newX = lastX + 100 + Math.random()*80;
+    obstacles.push(makeObstacleAt(newX));
+  }
+
+  // collision
+  const planeRect = {
+    x: plane.x - plane.size,
+    y: plane.y - plane.size,
+    w: plane.size*2,
+    h: plane.size*2
+  };
+  for (const o of obstacles){
+    if (rectHit(planeRect.x,planeRect.y,planeRect.w,planeRect.h, o.x,o.y,o.w,o.h)){
+      crash(o.type);
+      return;
+  } }
+
+  // very gentle difficulty ramp: slightly more obstacles every 400 m
+  if (distance > 400 && obstacles.length < 10){
+    const lastX = Math.max(...obstacles.map(o=>o.x));
+    obstacles.push(makeObstacleAt(lastX + 90 + Math.random()*60));
+  }
+}
+
+function rectHit(ax,ay,aw,ah,bx,by,bw,bh){
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
+function crash(type){
+  state = GAME_STATE.OVER;
+  if (distance > bestDistance) bestDistance = distance;
+  resultBanner.style.display = "block";
+  resultBanner.className = "result-banner lose";
+  resultBanner.textContent = "We clipped a " + (type==="bird"?"flock of birds":type==="storm"?"storm cloud":"mountain") + ". You flew "+Math.floor(distance)+" m!";
+  topStatus.textContent = "Flight interrupted · " + Math.floor(distance) + " m";
+  log("Obstacle collision. Nice run—see if you can beat your distance.", "system");
+}
+
+function draw(){
+  // sky
+  const grd = ctx.createLinearGradient(0,0,0,canvas.height);
+  grd.addColorStop(0,"#0ea5e9");
+  grd.addColorStop(1,"#1d4ed8");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // clouds
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  for (const c of clouds){
+    drawCloud(c.x,c.y,c.r);
+  }
+
+  // obstacles
+  for (const o of obstacles){
+    drawObstacle(o);
+  }
+
+  // plane
+  drawPlane(plane.x,plane.y);
+}
+
+function drawCloud(x,y,r){
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.arc(x+r,y+4,r*0.9,0,Math.PI*2);
+  ctx.arc(x-r*0.8,y+6,r*0.8,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawObstacle(o){
+  if (o.type === "bird"){
+    ctx.strokeStyle = "#020617";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(o.x,o.y+o.h/2);
+    ctx.quadraticCurveTo(o.x+o.w/2,o.y-6,o.x+o.w,o.y+o.h/2);
+    ctx.stroke();
+  } else if (o.type === "storm"){
+    ctx.fillStyle = "#64748b";
+    ctx.beginPath();
+    ctx.arc(o.x+10,o.y+10,10,0,Math.PI*2);
+    ctx.arc(o.x+22,o.y+13,10,0,Math.PI*2);
+    ctx.arc(o.x+5,o.y+18,10,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = "#eab308";
+    ctx.beginPath();
+    ctx.moveTo(o.x+14,o.y+20);
+    ctx.lineTo(o.x+10,o.y+30);
+    ctx.lineTo(o.x+18,o.y+30);
+    ctx.lineTo(o.x+12,o.y+40);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = "#4b5563";
+    ctx.beginPath();
+    ctx.moveTo(o.x+o.w/2,o.y);
+    ctx.lineTo(o.x,o.y+o.h);
+    ctx.lineTo(o.x+o.w,o.y+o.h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#9ca3af";
+    ctx.stroke();
+  }
+}
+
+function drawPlane(x,y){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.fillStyle = "#e5e7eb";
+  ctx.strokeStyle = "#020617";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-12,0);
+  ctx.lineTo(10,-6);
+  ctx.lineTo(14,0);
+  ctx.lineTo(10,6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#0f172a";
+  ctx.beginPath();
+  ctx.moveTo(-4,0);
+  ctx.lineTo(-12,-10);
+  ctx.lineTo(-6,-6);
+  ctx.lineTo(0,-2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-4,0);
+  ctx.lineTo(-12,10);
+  ctx.lineTo(-6,6);
+  ctx.lineTo(0,2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#1d4ed8";
+  ctx.beginPath();
+  ctx.moveTo(-10,-2);
+  ctx.lineTo(-16,-10);
+  ctx.lineTo(-8,-4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// input
+window.addEventListener("keydown", e=>{
+  if (e.code === "Space") e.preventDefault();
+  keys[e.code] = true;
+});
+window.addEventListener("keyup", e=>{
+  keys[e.code] = false;
+});
+
+touchButtons.forEach(btn=>{
+  btn.addEventListener("touchstart",e=>{
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    applyTouch(dir);
+  });
+  btn.addEventListener("click",e=>{
+    const dir = btn.dataset.dir;
+    applyTouch(dir);
+  });
+});
+
+function applyTouch(dir){
+  if (state !== GAME_STATE.RUNNING) return;
+  if (dir==="up") plane.y -= 16;
+  if (dir==="down") plane.y += 16;
+  if (dir==="left") plane.x -= 8;
+  if (dir==="right") plane.x += 8;
+  if (dir==="boost" && plane.boostTime<=0){
+    plane.boostTime = 32;
+    log("Captain adds a little extra thrust!", "system");
+  }
+}
+
+// buttons
+startBtn.addEventListener("click", startGame);
+resetBtn.addEventListener("click", resetGame);
+
+window.addEventListener("DOMContentLoaded", resetGame);
+</script>
+</body>
+</html>

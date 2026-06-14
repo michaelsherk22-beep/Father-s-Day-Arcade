@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pito's Ride - Father's Day Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-color: #101820;
+      --ground-color: #303846;
+      --accent: #ffcc33;
+      --danger: #ff5252;
+      --powerup: #33e1ff;
+      --ui-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #283547 0%, #05070b 60%, #000 100%);
+      color: #f9fafb;
+      font-family: var(--ui-font);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: min(100vw - 16px, 960px);
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(#1c3048 0%, #152235 50%, #152235 70%, #151922 71%, #151922 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      touch-action: manipulation;
+    }
+
+    #game-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: transparent;
+    }
+
+    .hud {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 6px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      pointer-events: none;
+    }
+
+    .hud-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: auto;
+    }
+
+    .badge span.value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .badge.power {
+      border-color: var(--powerup);
+    }
+
+    .badge.life {
+      border-color: #4ade80;
+    }
+
+    .badge.distance {
+      border-color: #a5b4fc;
+    }
+
+    .badge label {
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      opacity: 0.85;
+      letter-spacing: 0.06em;
+    }
+
+    #message-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      max-width: 80%;
+      display: none;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    #message-banner h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    #message-banner p {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      opacity: 0.88;
+    }
+
+    #message-banner button {
+      margin-top: 6px;
+    }
+
+    #banner-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 16px;
+      object-fit: cover;
+      margin: 6px auto 10px auto;
+      display: none; /* shown once Pito.jpg loads */
+      box-shadow: 0 6px 24px rgba(0,0,0,0.7);
+    }
+
+    .btn {
+      pointer-events: auto;
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: #111827;
+      background: var(--accent);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(0, 0, 0, 0.55);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .mobile-hint {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      opacity: 0.75;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .hud {
+        padding: 4px 6px;
+      }
+      .badge {
+        font-size: 0.65rem;
+        padding: 3px 7px;
+      }
+      #message-banner {
+        max-width: 92%;
+        padding: 14px 16px;
+      }
+      #message-banner h2 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Pito's Ride</h1>
+  <div class="subtitle">Tap or click to jump. Grab gems to drive through obstacles.</div>
+
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="hud">
+      <div class="hud-group">
+        <div class="badge distance">
+          <label>Distance</label>
+          <span class="value" id="distance-label">0 m</span>
+        </div>
+        <div class="badge">
+          <label>Grandkids</label>
+          <span class="value" id="grandkids-label">0</span>
+        </div>
+        <div class="badge life">
+          <label>Hearts</label>
+          <span class="value" id="lives-label">3</span>
+        </div>
+      </div>
+      <div class="hud-group">
+        <div class="badge power">
+          <label>Chains</label>
+          <span class="value" id="chains-label">0</span>
+        </div>
+        <div class="badge power">
+          <label>Sneakers</label>
+          <span class="value" id="sneakers-label">0</span>
+        </div>
+        <div class="badge power">
+          <label>Energy</label>
+          <span class="value" id="energy-label">0</span>
+        </div>
+        <div class="badge power">
+          <label>Gems</label>
+          <span class="value" id="gems-label">0</span>
+        </div>
+        <button id="start-button" class="btn secondary">Start / Restart</button>
+      </div>
+    </div>
+
+    <div id="message-banner">
+      <h2 id="banner-title">Paused</h2>
+      <img id="banner-image" alt="Pito on the bike" />
+      <p id="banner-text"></p>
+      <button id="banner-primary" class="btn">Play</button>
+      <button id="banner-secondary" class="btn secondary">Close</button>
+    </div>
+  </div>
+
+  <div class="mobile-hint">
+    Single-file HTML5 build. Drop this into a GitHub Pages repo and open on any device.
+  </div>
+
+  <script>
+    // Canvas and context
+    const canvas = document.getElementById("game-canvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = rect.width * scale;
+      canvas.height = rect.height * scale;
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // HUD elements
+    const distanceLabel = document.getElementById("distance-label");
+    const grandkidsLabel = document.getElementById("grandkids-label");
+    const livesLabel = document.getElementById("lives-label");
+    const chainsLabel = document.getElementById("chains-label");
+    const sneakersLabel = document.getElementById("sneakers-label");
+    const energyLabel = document.getElementById("energy-label");
+    const gemsLabel = document.getElementById("gems-label");
+    const startButton = document.getElementById("start-button");
+
+    const banner = document.getElementById("message-banner");
+    const bannerTitle = document.getElementById("banner-title");
+    const bannerText = document.getElementById("banner-text");
+    const bannerPrimary = document.getElementById("banner-primary");
+    const bannerSecondary = document.getElementById("banner-secondary");
+    const bannerImage = document.getElementById("banner-image");
+
+    // Load Pito sprite (and use as banner image)
+    const pitoImage = new Image();
+    let pitoLoaded = false;
+    pitoImage.onload = () => {
+      pitoLoaded = true;
+      bannerImage.src = pitoImage.src;
+      bannerImage.style.display = "block";
+    };
+    pitoImage.onerror = () => { pitoLoaded = false; };
+    pitoImage.src = "Pito.jpg"; // should sit next to this HTML file
+
+    // World constants (easier settings)
+    const GRAVITY = 2000;          // px/s^2
+    const JUMP_VELOCITY = -860;    // slightly generous jump
+    const GROUND_HEIGHT = 80;      // px
+    const BASE_SPEED = 290;        // slower base side scroll speed
+    const MAX_SPEED = 420;         // lower max
+    const LEVEL_DISTANCE = 900;    // meters until grandkid
+    const OBSTACLE_INTERVAL_MIN = 1.4; // more time between obstacles
+    const OBSTACLE_INTERVAL_MAX = 2.4;
+    const POWERUP_INTERVAL_MIN = 3.0;
+    const POWERUP_INTERVAL_MAX = 5.5;
+
+    // Game state
+    let gameState = "idle"; // "idle" | "running" | "paused" | "gameover" | "won"
+    let lastTimestamp = 0;
+
+    const state = {
+      speed: BASE_SPEED,
+      distance: 0,
+      lives: 3,
+      grandkidsRescued: 0,
+      chains: 0,
+      sneakers: 0,
+      energy: 0,
+      gems: 0,
+      // timers (seconds)
+      sneakersTimer: 0,
+      energyTimer: 0,
+      gemTimer: 0,
+      // spawn timers
+      obstacleTimer: 0,
+      obstacleInterval: 1.6,
+      powerTimer: 0,
+      powerInterval: 4.2,
+      // grandkid
+      grandkidSpawned: false,
+      grandkidReached: false
+    };
+
+    // Player
+    const player = {
+      x: 120,
+      y: 0,
+      width: 96,
+      height: 72,
+      vy: 0,
+      onGround: false,
+      jumpQueued: false
+    };
+
+    // Entities
+    const obstacles = []; // {type,x,y,width,height,passed}
+    const powerUps = [];  // {type,x,y,size,collected}
+    let grandkid = null;  // {x,y,width,height,rescued}
+
+    // Utility helpers
+    function randRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function resetLevelState() {
+      state.speed = BASE_SPEED;
+      state.distance = 0;
+      state.obstacleTimer = 0;
+      state.obstacleInterval = randRange(OBSTACLE_INTERVAL_MIN, OBSTACLE_INTERVAL_MAX);
+      state.powerTimer = 0;
+      state.powerInterval = randRange(POWERUP_INTERVAL_MIN, POWERUP_INTERVAL_MAX);
+      state.grandkidSpawned = false;
+      state.grandkidReached = false;
+      obstacles.length = 0;
+      powerUps.length = 0;
+      grandkid = null;
+      player.y = getGroundY() - player.height;
+      player.vy = 0;
+      player.onGround = true;
+      player.jumpQueued = false;
+    }
+
+    function resetWholeGame() {
+      state.lives = 3;
+      state.grandkidsRescued = 0;
+      state.chains = 0;
+      state.sneakers = 0;
+      state.energy = 0;
+      state.gems = 0;
+      state.sneakersTimer = 0;
+      state.energyTimer = 0;
+      state.gemTimer = 0;
+      resetLevelState();
+      syncHud();
+    }
+
+    function syncHud() {
+      distanceLabel.textContent = Math.floor(state.distance).toString() + " m";
+      grandkidsLabel.textContent = state.grandkidsRescued.toString();
+      livesLabel.textContent = state.lives.toString();
+      chainsLabel.textContent = state.chains.toString();
+      sneakersLabel.textContent = state.sneakers.toString();
+      energyLabel.textContent = state.energy.toString();
+      gemsLabel.textContent = state.gems.toString();
+    }
+
+    function getGroundY() {
+      return canvas.height / (window.devicePixelRatio || 1) - GROUND_HEIGHT;
+    }
+
+    // Input handling (click/tap/space)
+    function requestJump() {
+      if (gameState === "running") {
+        player.jumpQueued = true;
+      } else if (gameState === "idle" || gameState === "gameover" || gameState === "won") {
+        startGame();
+      }
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      requestJump();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space" || e.code === "ArrowUp") {
+        e.preventDefault();
+        requestJump();
+      }
+      if (e.code === "KeyP") {
+        togglePause();
+      }
+    });
+
+    startButton.addEventListener("click", () => {
+      if (gameState === "running") {
+        togglePause();
+      } else {
+        startGame();
+      }
+    });
+
+    bannerPrimary.addEventListener("click", () => {
+      if (gameState === "paused") {
+        hideBanner();
+        gameState = "running";
+      } else {
+        hideBanner();
+        startGame();
+      }
+    });
+
+    bannerSecondary.addEventListener("click", hideBanner);
+
+    function togglePause() {
+      if (gameState === "running") {
+        gameState = "paused";
+        showBanner("Paused", "Take a breather, then get Pito back on the road.", "Resume ride", "Close");
+      } else if (gameState === "paused") {
+        hideBanner();
+        gameState = "running";
+      }
+    }
+
+    function showBanner(title, text, primaryLabel, secondaryLabel) {
+      bannerTitle.textContent = title;
+      bannerText.textContent = text;
+      bannerPrimary.textContent = primaryLabel || "Play";
+      bannerSecondary.textContent = secondaryLabel || "Close";
+      banner.style.display = "block";
+    }
+
+    function hideBanner() {
+      banner.style.display = "none";
+    }
+
+    function startGame() {
+      if (gameState === "idle" || gameState === "gameover" || gameState === "won") {
+        resetWholeGame();
+      } else {
+        resetLevelState();
+      }
+      hideBanner();
+      gameState = "running";
+      lastTimestamp = performance.now();
+    }
+
+    // Entity creation
+    function spawnObstacle() {
+      const groundY = getGroundY();
+      const typeList = ["barrier", "cone", "pothole", "ramp", "car"];
+      const type = typeList[Math.floor(Math.random() * typeList.length)];
+      let width = 40;
+      let height = 40;
+      let y = groundY - height;
+
+      switch (type) {
+        case "barrier":
+          width = 60;
+          height = 55;
+          y = groundY - height;
+          break;
+        case "cone":
+          width = 34;
+          height = 40;
+          y = groundY - height;
+          break;
+        case "pothole":
+          width = 70;
+          height = 16;
+          y = groundY - 12;
+          break;
+        case "ramp":
+          width = 90;
+          height = 30;
+          y = groundY - height;
+          break;
+        case "car":
+          width = 110;
+          height = 55;
+          y = groundY - height;
+          break;
+      }
+
+      obstacles.push({
+        type,
+        x: canvas.width / (window.devicePixelRatio || 1) + 40,
+        y,
+        width,
+        height,
+        passed: false
+      });
+    }
+
+    function spawnPowerUp() {
+      const groundY = getGroundY();
+      // Add gem as a fourth type, but slightly rarer
+      const rnd = Math.random();
+      let type;
+      if (rnd < 0.3) type = "chain";
+      else if (rnd < 0.6) type = "sneakers";
+      else if (rnd < 0.9) type = "energy";
+      else type = "gem";
+
+      const size = 28;
+      const laneY = groundY - player.height - 40;
+      powerUps.push({
+        type,
+        x: canvas.width / (window.devicePixelRatio || 1) + 40,
+        y: laneY,
+        size,
+        collected: false
+      });
+    }
+
+    function spawnGrandkid() {
+      const groundY = getGroundY();
+      grandkid = {
+        x: canvas.width / (window.devicePixelRatio || 1) + 120,
+        y: groundY - 64,
+        width: 54,
+        height: 64,
+        rescued: false
+      };
+      state.grandkidSpawned = true;
+    }
+
+    // Collision helpers
+    function rectsOverlap(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    function circleRectOverlap(circle, rect) {
+      const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
+      const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
+      const dx = circle.x - closestX;
+      const dy = circle.y - closestY;
+      return dx * dx + dy * dy < circle.radius * circle.radius;
+    }
+
+    // Game loop
+    function loop(timestamp) {
+      requestAnimationFrame(loop);
+      const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.035);
+      lastTimestamp = timestamp;
+
+      if (gameState === "running") {
+        update(dt);
+      }
+      render();
+    }
+    lastTimestamp = performance.now();
+    requestAnimationFrame(loop);
+
+    function update(dt) {
+      const pixelsPerMeter = 100;
+      state.distance += (state.speed * dt) / pixelsPerMeter;
+
+      // Speed progression (still eases in, but with lower caps)
+      const targetSpeed = BASE_SPEED + (MAX_SPEED - BASE_SPEED) * Math.min(state.distance / LEVEL_DISTANCE, 1);
+      state.speed += (targetSpeed - state.speed) * 0.5 * dt;
+
+      // Timers
+      state.obstacleTimer += dt;
+      state.powerTimer += dt;
+
+      if (state.obstacleTimer >= state.obstacleInterval && !state.grandkidReached) {
+        spawnObstacle();
+        state.obstacleTimer = 0;
+        state.obstacleInterval = randRange(OBSTACLE_INTERVAL_MIN, OBSTACLE_INTERVAL_MAX);
+      }
+
+      if (state.powerTimer >= state.powerInterval && !state.grandkidReached) {
+        spawnPowerUp();
+        state.powerTimer = 0;
+        state.powerInterval = randRange(POWERUP_INTERVAL_MIN, POWERUP_INTERVAL_MAX);
+      }
+
+      if (!state.grandkidSpawned && state.distance >= LEVEL_DISTANCE * 0.9) {
+        spawnGrandkid();
+      }
+
+      // Power-up effect timers
+      if (state.sneakersTimer > 0) {
+        state.sneakersTimer -= dt;
+        if (state.sneakersTimer <= 0) state.sneakersTimer = 0;
+      }
+
+      if (state.energyTimer > 0) {
+        state.energyTimer -= dt;
+        if (state.energyTimer <= 0) state.energyTimer = 0;
+      }
+
+      if (state.gemTimer > 0) {
+        state.gemTimer -= dt;
+        if (state.gemTimer <= 0) state.gemTimer = 0;
+      }
+
+      // Player physics
+      const groundY = getGroundY();
+      const effectiveGravity = state.energyTimer > 0 ? GRAVITY * 0.6 : GRAVITY;
+
+      if (player.onGround && player.jumpQueued) {
+        const jumpBoost = state.sneakersTimer > 0 ? 1.3 : 1.0;
+        player.vy = JUMP_VELOCITY * jumpBoost;
+        player.onGround = false;
+      }
+      player.jumpQueued = false;
+
+      player.vy += effectiveGravity * dt;
+      player.y += player.vy * dt;
+
+      if (player.y + player.height >= groundY) {
+        player.y = groundY - player.height;
+        player.vy = 0;
+        player.onGround = true;
+      }
+
+      // Move obstacles and power-ups
+      const moveX = state.speed * dt;
+      for (const o of obstacles) {
+        o.x -= moveX;
+      }
+      for (const p of powerUps) {
+        p.x -= moveX;
+      }
+      if (grandkid) {
+        grandkid.x -= moveX;
+      }
+
+      // Collisions with obstacles
+      const playerRect = { x: player.x, y: player.y, width: player.width, height: player.height };
+      let tookHit = false;
+      for (const o of obstacles) {
+        if (!tookHit && rectsOverlap(playerRect, o)) {
+          tookHit = true;
+        }
+      }
+      if (tookHit) {
+        handlePlayerHit();
+      }
+
+      // Power-up collection
+      for (const p of powerUps) {
+        if (!p.collected) {
+          const circle = { x: p.x + p.size / 2, y: p.y + p.size / 2, radius: p.size / 2 };
+          if (circleRectOverlap(circle, playerRect)) {
+            collectPowerUp(p);
+          }
+        }
+      }
+
+      // Grandkid rescue
+      if (grandkid && !grandkid.rescued && rectsOverlap(playerRect, grandkid)) {
+        grandkid.rescued = true;
+        state.grandkidsRescued += 1;
+        state.grandkidReached = true;
+        gameState = "won";
+        syncHud();
+        showBanner(
+          "Grandkid rescued!",
+          "Pito rode all the way through the level and saved the grandkid!",
+          "Ride again",
+          "Close"
+        );
+      }
+
+      // Cleanup entities
+      const screenWidth = canvas.width / (window.devicePixelRatio || 1);
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        if (obstacles[i].x + obstacles[i].width < -80) obstacles.splice(i, 1);
+      }
+      for (let i = powerUps.length - 1; i >= 0; i--) {
+        if (powerUps[i].x + powerUps[i].size < -80 || powerUps[i].collected) powerUps.splice(i, 1);
+      }
+
+      // If we passed level distance without seeing grandkid, spawn at edge
+      if (!state.grandkidSpawned && state.distance >= LEVEL_DISTANCE) {
+        spawnGrandkid();
+      }
+
+      syncHud();
+    }
+
+    function handlePlayerHit() {
+      // If gem is active, no crash at all
+      if (state.gemTimer > 0) {
+        // just visually flash but no life lost
+        gemFlashTimer = 0.18;
+        return;
+      }
+
+      // If energy shield is active, ignore crash too
+      if (state.energyTimer > 0) {
+        energyFlashTimer = 0.18;
+        return;
+      }
+
+      state.lives -= 1;
+      energyFlashTimer = 0.18;
+      if (state.lives <= 0) {
+        state.lives = 0;
+        gameState = "gameover";
+        showBanner(
+          "Crash!",
+          "Pito wiped out on the road. Grab gems to smash through obstacles next time!",
+          "Try again",
+          "Close"
+        );
+      } else {
+        // brief slowdown and soft reset of horizontal speed
+        state.speed = BASE_SPEED;
+      }
+      syncHud();
+    }
+
+    function collectPowerUp(p) {
+      p.collected = true;
+      if (p.type === "chain") {
+        state.chains += 1;
+      } else if (p.type === "sneakers") {
+        state.sneakers += 1;
+        state.sneakersTimer = 5.0; // lasts a bit longer on easier mode
+      } else if (p.type === "energy") {
+        state.energy += 1;
+        state.energyTimer = 4.0;
+      } else if (p.type === "gem") {
+        state.gems += 1;
+        state.gemTimer = 5.0; // invincible window
+      }
+      syncHud();
+    }
+
+    // Render
+    let energyFlashTimer = 0;
+    let gemFlashTimer = 0;
+
+    function render() {
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+
+      // Sky gradient
+      const sky = ctx.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, "#1b2840");
+      sky.addColorStop(0.45, "#141b2b");
+      sky.addColorStop(1, "#05070d");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h);
+
+      // Parallax background buildings
+      drawParallaxBackground(w, h);
+
+      // Road + lane markings
+      const groundY = getGroundY();
+      ctx.fillStyle = "#171c24";
+      ctx.fillRect(0, groundY, w, h - groundY);
+
+      ctx.strokeStyle = "#2a3340";
+      ctx.lineWidth = 24;
+      ctx.beginPath();
+      ctx.moveTo(0, groundY + 16);
+      ctx.lineTo(w, groundY + 16);
+      ctx.stroke();
+
+      const laneDashLength = 60;
+      const laneGap = 40;
+      const offset = (state.distance * 10) % (laneDashLength + laneGap);
+      ctx.strokeStyle = "#f5f5f5";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([laneDashLength, laneGap]);
+      ctx.lineDashOffset = -offset;
+      ctx.beginPath();
+      ctx.moveTo(0, groundY + 4);
+      ctx.lineTo(w, groundY + 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Obstacles
+      for (const o of obstacles) {
+        drawObstacle(o);
+      }
+
+      // Power-ups
+      for (const p of powerUps) {
+        drawPowerUp(p);
+      }
+
+      // Grandkid
+      if (grandkid) {
+        drawGrandkid(grandkid);
+      }
+
+      // Player (Pito)
+      drawPlayer();
+
+      // Flash overlays
+      if (energyFlashTimer > 0) {
+        energyFlashTimer -= 1 / 60;
+        ctx.fillStyle = "rgba(255,255,255,0.14)";
+        ctx.fillRect(0, 0, w, h);
+      }
+      if (gemFlashTimer > 0) {
+        gemFlashTimer -= 1 / 60;
+        ctx.fillStyle = "rgba(56,189,248,0.18)";
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // UI overlays for active powerups
+      drawActivePowerBars(w);
+    }
+
+    function drawParallaxBackground(w, h) {
+      const groundY = getGroundY();
+      const midHorizon = groundY - 80;
+      ctx.strokeStyle = "rgba(15,23,42,0.6)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, midHorizon);
+      ctx.lineTo(w, midHorizon);
+      ctx.stroke();
+
+      const seed = state.distance * 0.25;
+      const buildingWidth = 70;
+      for (let i = -2; i < w / buildingWidth + 4; i++) {
+        const x = (i * buildingWidth - (seed % buildingWidth));
+        const height = 40 + ((i * 37) % 60);
+        ctx.fillStyle = "rgba(15,23,42,0.85)";
+        ctx.fillRect(x, midHorizon - height, buildingWidth * 0.7, height);
+        // windows
+        ctx.fillStyle = "rgba(248,250,252,0.18)";
+        for (let wy = midHorizon - height + 8; wy < midHorizon - 8; wy += 8) {
+          for (let wx = x + 6; wx < x + buildingWidth * 0.7 - 4; wx += 10) {
+            if (((wx + wy) % 20) < 10) {
+              ctx.fillRect(wx, wy, 3, 4);
+            }
+          }
+        }
+      }
+    }
+
+    function drawObstacle(o) {
+      ctx.save();
+      if (o.type === "barrier") {
+        ctx.fillStyle = "#e11d48";
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+        ctx.fillStyle = "#f97316";
+        for (let i = 0; i < 4; i++) {
+          ctx.fillRect(o.x + i * (o.width / 4), o.y + 10, o.width / 8, o.height - 20);
+        }
+      } else if (o.type === "cone") {
+        ctx.fillStyle = "#fb923c";
+        ctx.beginPath();
+        ctx.moveTo(o.x + o.width / 2, o.y);
+        ctx.lineTo(o.x, o.y + o.height);
+        ctx.lineTo(o.x + o.width, o.y + o.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#fed7aa";
+        ctx.fillRect(o.x + 6, o.y + o.height - 16, o.width - 12, 4);
+      } else if (o.type === "pothole") {
+        const gradient = ctx.createRadialGradient(
+          o.x + o.width / 2,
+          o.y + o.height / 2,
+          4,
+          o.x + o.width / 2,
+          o.y + o.height / 2,
+          o.width / 2
+        );
+        gradient.addColorStop(0, "#020617");
+        gradient.addColorStop(1, "#111827");
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.ellipse(o.x + o.width / 2, o.y + 8, o.width / 2, o.height, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (o.type === "ramp") {
+        ctx.fillStyle = "#22c55e";
+        ctx.beginPath();
+        ctx.moveTo(o.x, o.y + o.height);
+        ctx.lineTo(o.x + o.width, o.y + o.height);
+        ctx.lineTo(o.x + o.width, o.y);
+        ctx.closePath();
+        ctx.fill();
+      } else if (o.type === "car") {
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(o.x, o.y + 16, o.width, o.height - 16);
+        ctx.fillStyle = "#e5e7eb";
+        ctx.fillRect(o.x + 10, o.y + 18, o.width / 2, 18);
+        ctx.fillStyle = "#111827";
+        ctx.beginPath();
+        ctx.arc(o.x + 20, o.y + o.height, 10, 0, Math.PI * 2);
+        ctx.arc(o.x + o.width - 20, o.y + o.height, 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawPowerUp(p) {
+      ctx.save();
+      let color = "#facc15";
+      if (p.type === "chain") color = "#e5e7eb";
+      if (p.type === "sneakers") color = "#22c55e";
+      if (p.type === "energy") color = "#38bdf8";
+      if (p.type === "gem") color = "#a855f7";
+
+      ctx.beginPath();
+      ctx.arc(p.x + p.size / 2, p.y + p.size / 2, p.size / 2, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      ctx.fillStyle = "#020617";
+      ctx.font = "bold 14px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      let symbol = "";
+      if (p.type === "chain") symbol = "⛓";
+      if (p.type === "sneakers") symbol = "👟";
+      if (p.type === "energy") symbol = "⚡";
+      if (p.type === "gem") symbol = "💎";
+      ctx.fillText(symbol, p.x + p.size / 2, p.y + p.size / 2 + 1);
+      ctx.restore();
+    }
+
+    function drawGrandkid(g) {
+      ctx.save();
+      const pulse = 0.85 + 0.15 * Math.sin(performance.now() / 220);
+      ctx.fillStyle = "#22c55e";
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
+      ctx.arc(g.x + g.width / 2, g.y + g.height, g.width * 1.2 * pulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      ctx.fillStyle = "#f59e0b";
+      ctx.fillRect(g.x, g.y, g.width, g.height);
+      ctx.fillStyle = "#1f2937";
+      ctx.fillRect(g.x + 12, g.y + 10, g.width - 24, g.height - 24);
+      ctx.fillStyle = "#fbbf24";
+      ctx.fillRect(g.x + 16, g.y + g.height - 22, g.width - 32, 8);
+
+      ctx.fillStyle = "#facc15";
+      ctx.font = "bold 14px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("GRANDKID", g.x + g.width / 2, g.y - 4);
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      const wobble = Math.sin(performance.now() / 120) * 2;
+      const x = player.x;
+      const y = player.y + wobble;
+      ctx.save();
+
+      if (pitoLoaded) {
+        const sliceW = pitoImage.width;
+        const sliceH = pitoImage.height;
+        const aspect = sliceW / sliceH || 1.2;
+        let drawW = player.width;
+        let drawH = drawW / aspect;
+        if (drawH > player.height) {
+          drawH = player.height;
+          drawW = drawH * aspect;
+        }
+        const dx = x + (player.width - drawW) / 2;
+        const dy = y + (player.height - drawH);
+        ctx.drawImage(pitoImage, 0, 0, sliceW, sliceH, dx, dy, drawW, drawH);
+      } else {
+        // Fallback stylized bike + rider
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(x, y + player.height - 26, player.width, 22);
+        ctx.fillStyle = "#020617";
+        ctx.beginPath();
+        ctx.arc(x + 22, y + player.height, 14, 0, Math.PI * 2);
+        ctx.arc(x + player.width - 22, y + player.height, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#facc15";
+        ctx.fillRect(x + 36, y + 10, 22, 32);
+        ctx.beginPath();
+        ctx.arc(x + 47, y + 8, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(x + 40, y + 18, 14, 12);
+      }
+
+      // Exhaust trail
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = "#9ca3af";
+      const trailX = x - 10;
+      const base = player.y + player.height - 6;
+      for (let i = 0; i < 3; i++) {
+        const offset = i * 10;
+        ctx.beginPath();
+        ctx.ellipse(trailX - offset, base + Math.sin(performance.now() / 150 + i) * 2, 10 - i * 2, 6 - i, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // If gem is active, draw glowing outline
+      if (state.gemTimer > 0) {
+        const frac = state.gemTimer / 5.0;
+        ctx.strokeStyle = "rgba(168,85,247," + (0.6 + 0.4 * frac) + ")";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(x - 4, y - 4, player.width + 8, player.height + 8);
+      }
+
+      ctx.restore();
+    }
+
+    function drawActivePowerBars(w) {
+      const barWidth = 110;
+      const barHeight = 6;
+      const padding = 6;
+      let x = 12;
+      const y = 8 + 26;
+
+      ctx.save();
+      ctx.font = "10px system-ui";
+      ctx.textBaseline = "middle";
+
+      if (state.sneakersTimer > 0) {
+        ctx.fillStyle = "rgba(15,23,42,0.8)";
+        ctx.fillRect(x, y, barWidth, barHeight);
+        ctx.fillStyle = "#22c55e";
+        const frac = Math.max(0, Math.min(state.sneakersTimer / 5.0, 1));
+        ctx.fillRect(x, y, barWidth * frac, barHeight);
+        ctx.fillStyle = "#bbf7d0";
+        ctx.fillText("Sneaker Boost", x, y - 4);
+        x += barWidth + padding;
+      }
+
+      if (state.energyTimer > 0) {
+        ctx.fillStyle = "rgba(15,23,42,0.8)";
+        ctx.fillRect(x, y, barWidth, barHeight);
+        ctx.fillStyle = "#38bdf8";
+        const frac = Math.max(0, Math.min(state.energyTimer / 4.0, 1));
+        ctx.fillRect(x, y, barWidth * frac, barHeight);
+        ctx.fillStyle = "#e0f2fe";
+        ctx.fillText("Energy Shield", x, y - 4);
+        x += barWidth + padding;
+      }
+
+      if (state.gemTimer > 0) {
+        ctx.fillStyle = "rgba(15,23,42,0.8)";
+        ctx.fillRect(x, y, barWidth, barHeight);
+        ctx.fillStyle = "#a855f7";
+        const frac = Math.max(0, Math.min(state.gemTimer / 5.0, 1));
+        ctx.fillRect(x, y, barWidth * frac, barHeight);
+        ctx.fillStyle = "#f5d0fe";
+        ctx.fillText("Gem Invincible", x, y - 4);
+      }
+
+      ctx.restore();
+    }
+  </script>
+</body>
+</html>
