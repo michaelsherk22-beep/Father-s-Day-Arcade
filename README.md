@@ -9,7 +9,7 @@
 ---
 
 ## 🕹️ Play Now
-👉 **[fathers-day-arcade.github.io](https://michaelsherk22.github.io/fathers-day-arcade/)**
+👉 **[fathers-day-arcade.github.io](https://michaelsherk22-beep.github.io/Father-s-Day-Arcade/)**
 
 No downloads. No installs. Just click and play in any browser! 🎉
 
