@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Tinsley's Strawberry Patch 🍓</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<style>
+:root{
+  --red:#e53e3e; --pink:#f687b3; --dpink:#d53f8c;
+  --green:#38a169; --dgreen:#276749; --sky:#63b3ed;
+  --gold:#ecc94b; --cream:#fffbeb; --brown:#92400e;
+  --panel:#fff8f0; --border:rgba(229,62,62,0.25);
+  --text:#2d3748;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  min-height:100vh;
+  background:linear-gradient(180deg,#bee3f8 0%,#90cdf4 30%,#68d391 70%,#48bb78 100%);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  color:var(--text);
+  padding:10px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+
+/* ── HEADER ── */
+header{
+  text-align:center;width:100%;max-width:900px;
+  background:rgba(255,255,255,0.85);
+  border-radius:20px;border:2px solid var(--pink);
+  padding:10px 16px;
+  box-shadow:0 4px 20px rgba(229,62,62,0.2);
+}
+.header-title{
+  font-size:clamp(1.4rem,4vw,2rem);font-weight:900;
+  color:var(--red);letter-spacing:.04em;
+  text-shadow:2px 2px 0 rgba(229,62,62,0.15);
+}
+.header-sub{font-size:.8rem;color:var(--dpink);font-weight:600;margin-top:2px;}
+.header-stats{display:flex;justify-content:center;gap:14px;margin-top:8px;flex-wrap:wrap;}
+.hstat{
+  background:linear-gradient(135deg,#fff0f3,#ffe4e8);
+  border:1.5px solid var(--pink);border-radius:999px;
+  padding:4px 14px;font-size:.8rem;display:flex;align-items:center;gap:5px;
+  box-shadow:0 2px 8px rgba(229,62,62,0.1);
+}
+.hstat-val{font-weight:800;color:var(--red);font-size:.95rem;}
+
+/* ── MAIN LAYOUT ── */
+.main{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(0,3fr);
+  gap:10px;width:100%;max-width:900px;
+}
+@media(max-width:680px){.main{grid-template-columns:1fr;}}
+
+/* ── PANEL ── */
+.panel{
+  background:rgba(255,255,255,0.88);
+  border-radius:18px;border:2px solid var(--pink);
+  padding:10px 12px;display:flex;flex-direction:column;gap:8px;
+  box-shadow:0 6px 24px rgba(229,62,62,0.15);
+}
+.panel-title{
+  font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--red);font-weight:800;
+  border-bottom:2px dashed var(--pink);padding-bottom:5px;
+  display:flex;align-items:center;gap:5px;
+}
+
+/* ── TINSLEY PORTRAIT ── */
+.portrait{
+  border-radius:14px;overflow:hidden;
+  border:3px solid var(--red);
+  box-shadow:0 0 20px rgba(229,62,62,0.3);
+}
+.portrait img{width:100%;display:block;}
+
+/* ── BASKET METER ── */
+.basket-section{display:flex;flex-direction:column;gap:4px;}
+.basket-label{font-size:.72rem;color:var(--green);font-weight:700;display:flex;justify-content:space-between;}
+.bbar-wrap{height:14px;background:#e2e8f0;border-radius:999px;overflow:hidden;border:1px solid var(--border);}
+.bbar{height:100%;border-radius:999px;transition:width .3s;
+  background:linear-gradient(90deg,var(--red),var(--pink));}
+
+/* ── LIVES ── */
+.lives{display:flex;gap:4px;align-items:center;font-size:1.2rem;}
+
+/* ── LOG ── */
+.log{
+  background:#fff5f5;border-radius:10px;border:1.5px solid var(--pink);
+  padding:6px 8px;max-height:120px;overflow-y:auto;
+  font-size:.73rem;display:flex;flex-direction:column;gap:2px;
+}
+.le-sys{color:#a0aec0;font-style:italic;}
+.le-good{color:var(--green);font-weight:600;}
+.le-bad{color:var(--red);}
+.le-fab{color:var(--dpink);font-weight:800;}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;}
+.btn{
+  border-radius:999px;border:2px solid var(--border);
+  padding:7px 16px;font-size:.77rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.07em;
+  cursor:pointer;transition:all .15s;background:#fff;color:var(--text);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,62,62,.3);}
+.btn.primary{background:linear-gradient(135deg,var(--red),var(--dpink));color:#fff;border-color:var(--red);}
+.btn.warn{background:linear-gradient(135deg,#ecc94b,#d69e2e);color:#fff;border-color:#d69e2e;}
+
+/* ══════════════════════════════
+   GAME CANVAS AREA
+══════════════════════════════ */
+#gameWrap{
+  border-radius:18px;overflow:hidden;
+  border:3px solid var(--red);
+  box-shadow:0 8px 32px rgba(229,62,62,0.25);
+  position:relative;background:#87ceeb;
+  cursor:none;
+}
+canvas{display:block;}
+
+/* Overlay screens */
+.overlay{
+  position:absolute;inset:0;
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:10px;
+  background:rgba(255,248,240,0.93);
+  border-radius:15px;z-index:20;
+  backdrop-filter:blur(3px);
+}
+.overlay.show{display:flex;}
+.ov-emoji{font-size:4rem;animation:ovBounce .7s ease infinite alternate;}
+@keyframes ovBounce{0%{transform:scale(1);}100%{transform:scale(1.2);}}
+.ov-title{
+  font-size:1.6rem;font-weight:900;color:var(--red);
+  text-shadow:2px 2px 0 rgba(229,62,62,0.2);
+}
+.ov-sub{font-size:.9rem;color:var(--dpink);font-weight:600;}
+.ov-score{font-size:1.1rem;font-weight:800;color:var(--green);}
+
+/* Touch/mobile left-right buttons */
+.touch-controls{
+  display:none;justify-content:space-between;
+  gap:8px;margin-top:4px;
+}
+@media(max-width:680px){.touch-controls{display:flex;}}
+.touch-btn{
+  flex:1;padding:16px;font-size:1.6rem;
+  background:rgba(255,255,255,0.85);border:2px solid var(--pink);
+  border-radius:14px;cursor:pointer;text-align:center;
+  user-select:none;-webkit-user-select:none;
+  box-shadow:0 3px 10px rgba(229,62,62,0.15);
+}
+.touch-btn:active{background:rgba(246,135,179,0.3);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">🍓 Tinsley's Strawberry Patch 🍓</div>
+  <div class="header-sub">Help baby Tinsley fill her basket with strawberries!</div>
+  <div class="header-stats">
+    <div class="hstat">🍓 Score <span class="hstat-val" id="scoreEl">0</span></div>
+    <div class="hstat">🏆 Level <span class="hstat-val" id="levelEl">1</span></div>
+    <div class="hstat">🧺 Caught <span class="hstat-val" id="caughtEl">0</span></div>
+    <div class="hstat">⏱️ <span class="hstat-val" id="timerEl">60</span>s</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel">
+    <div class="panel-title">🍓 Tinsley</div>
+    <div class="portrait">
+      <img src="Tinsley-Strawberry.jpg" alt="Tinsley Strawberry"/>
+    </div>
+
+    <div class="basket-section">
+      <div class="basket-label">
+        <span>🧺 Basket</span>
+        <span id="basketCount">0 / 10</span>
+      </div>
+      <div class="bbar-wrap"><div class="bbar" id="bbar" style="width:0%"></div></div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="panel-title" style="border:none;padding:0;">❤️ Lives</div>
+      <div class="lives" id="livesEl">❤️❤️❤️</div>
+    </div>
+
+    <div class="log" id="logEl">
+      <div class="le-sys">Press ▶ Start to help Tinsley! 🍓</div>
+      <div class="le-sys">Use ← → arrow keys to move her basket!</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="btnStart">▶ Start</button>
+      <button class="btn warn"    id="btnPause">⏸ Pause</button>
+      <button class="btn"         id="btnRestart">↺ Restart</button>
+    </div>
+
+    <div style="font-size:.72rem;color:#718096;line-height:1.7;background:#fff5f5;border-radius:8px;padding:8px;border:1px dashed var(--pink);">
+      <span style="color:var(--red);font-weight:700;">How to Play 🍓</span><br/>
+      • <b>← → Arrow Keys</b> to move Tinsley<br/>
+      • Catch strawberries 🍓 in her basket!<br/>
+      • 🦋 Catch butterflies for bonus points!<br/>
+      • ☁️ Avoid storm clouds — they shrink your basket<br/>
+      • Fill the basket 10x to complete each level<br/>
+      • You have 3 lives — don't miss too many!
+    </div>
+  </aside>
+
+  <!-- GAME AREA -->
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="panel" style="padding:8px;">
+      <div class="panel-title">🌿 Strawberry Patch Garden</div>
+      <div id="gameWrap">
+        <canvas id="gc" width="520" height="460"></canvas>
+
+        <!-- Start overlay -->
+        <div class="overlay show" id="startOverlay">
+          <div class="ov-emoji">🍓</div>
+          <div class="ov-title">Tinsley's Strawberry Patch!</div>
+          <div class="ov-sub">Move Tinsley with ← → Arrow Keys<br/>Catch strawberries in her basket!</div>
+          <div class="ov-sub">🦋 Butterflies = Bonus! &nbsp; ☁️ Storm Clouds = Bad!</div>
+          <button class="btn primary" style="font-size:.9rem;padding:10px 28px;" onclick="startGame()">🍓 Let's Pick Strawberries!</button>
+        </div>
+
+        <!-- Pause overlay -->
+        <div class="overlay" id="pauseOverlay">
+          <div class="ov-emoji">⏸</div>
+          <div class="ov-title">Game Paused</div>
+          <div class="ov-sub">Press P or ▶ Resume to continue</div>
+        </div>
+
+        <!-- Level up overlay -->
+        <div class="overlay" id="levelOverlay">
+          <div class="ov-emoji">🎉</div>
+          <div class="ov-title" id="levelTitle">Level 2!</div>
+          <div class="ov-score" id="levelScore">Basket Full! +200 Bonus Points!</div>
+          <div class="ov-sub">Strawberries fall faster now! Ready?</div>
+        </div>
+
+        <!-- Game over overlay -->
+        <div class="overlay" id="gameOverOverlay">
+          <div class="ov-emoji">🍓</div>
+          <div class="ov-title">Time's Up!</div>
+          <div class="ov-score" id="finalScore">Final Score: 0</div>
+          <div class="ov-sub" id="finalMsg">Great picking, Tinsley! 🌸</div>
+          <button class="btn primary" style="font-size:.9rem;padding:10px 28px;" onclick="startGame()">🔄 Play Again!</button>
+        </div>
+      </div>
+
+      <!-- Mobile controls -->
+      <div class="touch-controls">
+        <div class="touch-btn" id="leftBtn">⬅️</div>
+        <div class="touch-btn" id="rightBtn">➡️</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('gc');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// DOM
+const scoreEl   = document.getElementById('scoreEl');
+const levelEl   = document.getElementById('levelEl');
+const caughtEl  = document.getElementById('caughtEl');
+const timerEl   = document.getElementById('timerEl');
+const bbar      = document.getElementById('bbar');
+const basketCount=document.getElementById('basketCount');
+const livesEl   = document.getElementById('livesEl');
+const logEl     = document.getElementById('logEl');
+const btnPause  = document.getElementById('btnPause');
+
+// Overlays
+const startOv   = document.getElementById('startOverlay');
+const pauseOv   = document.getElementById('pauseOverlay');
+const levelOv   = document.getElementById('levelOverlay');
+const gameOverOv= document.getElementById('gameOverOverlay');
+
+// Game state
+let score=0, level=1, lives=3, caught=0, totalCaught=0;
+let timeLeft=60, running=false, paused=false, gameOver=false;
+let basketFill=0; const BASKET_MAX=10;
+let timerInterval=null;
+
+// Falling items
+let items=[], particles=[], clouds=[];
+let spawnTimer=0, cloudTimer=0;
+
+// Tinsley basket player
+const P = {
+  x: W/2-50, y: H-70,
+  w: 100, h: 50,
+  speed: 6,
+  targetX: W/2-50
+};
+
+// Tinsley image
+const tinsleyImg = new Image();
+tinsleyImg.src = 'Tinsley-Strawberry.jpg';
+
+// Input
+const keys = {};
+window.addEventListener('keydown', e=>{
+  keys[e.key] = true;
+  if(e.key==='p'||e.key==='P') togglePause();
+  if(['ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+});
+window.addEventListener('keyup', e=>{ keys[e.key]=false; });
+
+// Mobile touch
+document.getElementById('leftBtn').addEventListener('touchstart',  e=>{ keys['ArrowLeft']=true;  e.preventDefault(); },{passive:false});
+document.getElementById('leftBtn').addEventListener('touchend',    ()=>{ keys['ArrowLeft']=false; });
+document.getElementById('rightBtn').addEventListener('touchstart', e=>{ keys['ArrowRight']=true; e.preventDefault(); },{passive:false});
+document.getElementById('rightBtn').addEventListener('touchend',   ()=>{ keys['ArrowRight']=false; });
+document.getElementById('leftBtn').addEventListener('mousedown',   ()=>keys['ArrowLeft']=true);
+document.getElementById('leftBtn').addEventListener('mouseup',     ()=>keys['ArrowLeft']=false);
+document.getElementById('rightBtn').addEventListener('mousedown',  ()=>keys['ArrowRight']=true);
+document.getElementById('rightBtn').addEventListener('mouseup',    ()=>keys['ArrowRight']=false);
+
+document.getElementById('btnStart').onclick   = startGame;
+document.getElementById('btnPause').onclick   = togglePause;
+document.getElementById('btnRestart').onclick = startGame;
+
+function log(msg, kind='sys'){
+  const d=document.createElement('div');
+  d.className='le-'+kind; d.textContent=msg;
+  logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight;
+}
+
+function updateLives(){
+  livesEl.textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives));
+}
+
+function updateBasket(){
+  const pct = (basketFill/BASKET_MAX)*100;
+  bbar.style.width = pct+'%';
+  basketCount.textContent = `${basketFill} / ${BASKET_MAX}`;
+}
+
+// ── FALLING ITEMS ─────────────────────────────────────
+function spawnItem(){
+  const r = Math.random();
+  let type, emoji, pts, color;
+  if(r < 0.60){       // 60% strawberry
+    type='strawberry'; emoji='🍓'; pts=10; color='#e53e3e';
+  } else if(r < 0.75){ // 15% small strawberry (faster, more pts)
+    type='strawberry2'; emoji='🍓'; pts=20; color='#c53030';
+  } else if(r < 0.88){ // 13% butterfly bonus
+    type='butterfly'; emoji=Math.random()<0.5?'🦋':'🌸'; pts=30; color='#d53f8c';
+  } else {             // 12% bad storm cloud
+    type='cloud'; emoji='⛈️'; pts=-1; color='#718096';
+  }
+  const spd = 1.8 + (level-1)*0.35 + Math.random()*1.2;
+  const wobble = type==='butterfly' ? (Math.random()-.5)*2 : 0;
+  items.push({
+    x: 30+Math.random()*(W-60),
+    y: -40,
+    w: 40, h: 40,
+    vy: spd, vx: wobble,
+    type, emoji, pts, color,
+    wobble: Math.random()*Math.PI*2,
+    dead: false, caught: false
+  });
+}
+
+// ── PARTICLES ─────────────────────────────────────────
+function spawnParticles(x, y, color, n=12){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*4;
+    particles.push({
+      x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,
+      life:1,decay:.025+Math.random()*.03,
+      r:3+Math.random()*5, color,
+      char: Math.random()<0.5?'✨':null
+    });
+  }
+}
+
+// Decorative background clouds
+function spawnBgCloud(){
+  clouds.push({
+    x: W+60, y: 20+Math.random()*80,
+    w: 60+Math.random()*60, speed: 0.3+Math.random()*0.4,
+    alpha: 0.6+Math.random()*0.3
+  });
+}
+// Pre-populate clouds
+for(let i=0;i<4;i++) clouds.push({x:Math.random()*W, y:20+Math.random()*80, w:60+Math.random()*60, speed:0.3+Math.random()*0.4, alpha:0.6+Math.random()*0.3});
+
+// ── TIMER ─────────────────────────────────────────────
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    if(!running||paused) return;
+    timeLeft--;
+    timerEl.textContent=timeLeft;
+    if(timeLeft<=0){ endGame(); }
+    if(timeLeft===10) log('⏱️ 10 seconds left!','bad');
+  },1000);
+}
+
+// ── UPDATE ────────────────────────────────────────────
+let spawnDelay = 90; // frames between spawns
+
+function update(){
+  if(!running||paused||gameOver) return;
+
+  // Move player
+  if(keys['ArrowLeft'])  P.x = Math.max(0, P.x - P.speed);
+  if(keys['ArrowRight']) P.x = Math.min(W - P.w, P.x + P.speed);
+
+  // Spawn items
+  spawnTimer++;
+  const sd = Math.max(28, spawnDelay - (level-1)*8);
+  if(spawnTimer >= sd){ spawnItem(); spawnTimer=0; }
+
+  // Spawn bg clouds
+  cloudTimer++;
+  if(cloudTimer>180){ spawnBgCloud(); cloudTimer=0; }
+
+  // Move bg clouds
+  clouds.forEach(c=>c.x-=c.speed);
+  clouds = clouds.filter(c=>c.x > -120);
+
+  // Move falling items
+  items.forEach(item=>{
+    item.y += item.vy;
+    item.wobble += 0.06;
+    if(item.type==='butterfly'){
+      item.x += item.vx + Math.sin(item.wobble)*1.5;
+      item.x = Math.max(20, Math.min(W-20, item.x));
+    }
+
+    // Collision with basket
+    const bx = P.x, bw = P.w, by = P.y+8;
+    const cx = item.x, cy = item.y;
+    if(!item.caught && cx > bx-10 && cx < bx+bw+10 && cy > by-10 && cy < by+P.h+10){
+      item.caught = true; item.dead = true;
+
+      if(item.type==='cloud'){
+        // Bad item
+        lives = Math.max(0, lives-1);
+        updateLives();
+        log(`⛈️ Storm cloud! -1 life! ${lives} left`, 'bad');
+        spawnParticles(item.x, item.y, '#718096', 8);
+        if(lives<=0){ endGame(); return; }
+      } else {
+        // Good item
+        score += item.pts;
+        caught++; totalCaught++;
+        basketFill = Math.min(BASKET_MAX, basketFill+1);
+        scoreEl.textContent = score;
+        caughtEl.textContent = totalCaught;
+        updateBasket();
+        spawnParticles(item.x, item.y, item.color, 14);
+
+        const msgs = {
+          strawberry: ['🍓 Yummy!','Sweet!','Got it!','Nice catch!','Mmm!'],
+          strawberry2:['⭐ Fast one!','Quick catch!','Double points!'],
+          butterfly:  ['🦋 Bonus!','Beautiful!','Lucky catch!','Flutter power!','🌸 Pretty!']
+        };
+        const m=msgs[item.type]||msgs.strawberry;
+        log(m[Math.floor(Math.random()*m.length)] + ` +${item.pts}pts`, 'good');
+
+        // Basket full = level up
+        if(basketFill >= BASKET_MAX){
+          levelUp();
+        }
+      }
+    }
+
+    // Item falls off bottom
+    if(!item.caught && item.y > H+20){
+      item.dead = true;
+      if(item.type!=='cloud'){
+        lives = Math.max(0, lives-1);
+        updateLives();
+        log(`😢 Missed a strawberry! ${lives} lives left`, 'bad');
+        if(lives<=0){ endGame(); return; }
+      }
+    }
+  });
+  items = items.filter(i=>!i.dead);
+
+  // Particles
+  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life-=p.decay; p.vx*=0.93; });
+  particles = particles.filter(p=>p.life>0);
+}
+
+function levelUp(){
+  level++;
+  const bonus = level * 100;
+  score += bonus;
+  scoreEl.textContent = score;
+  levelEl.textContent = level;
+  basketFill = 0;
+  updateBasket();
+  items = []; // clear items
+
+  document.getElementById('levelTitle').textContent = `🎉 Level ${level}!`;
+  document.getElementById('levelScore').textContent  = `Basket Full! +${bonus} Bonus Points!`;
+  levelOv.classList.add('show');
+  paused = true;
+  log(`🎉 Level ${level}! Strawberries are falling faster! +${bonus} pts`, 'fab');
+  setTimeout(()=>{ levelOv.classList.remove('show'); paused=false; spawnTimer=0; }, 2500);
+}
+
+function endGame(){
+  running=false; gameOver=true;
+  clearInterval(timerInterval);
+  document.getElementById('finalScore').textContent = `Final Score: ${score.toLocaleString()}`;
+  const msgs = score>=500?'Amazing picking, Tinsley! 🌟':score>=250?'Great work in the patch! 🌸':'Keep practicing, little strawberry! 🍓';
+  document.getElementById('finalMsg').textContent = msgs;
+  gameOverOv.classList.add('show');
+  log(`Game over! Final score: ${score} 🍓`, 'fab');
+}
+
+// ── DRAW ──────────────────────────────────────────────
+function draw(){
+  // Sky gradient
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#87ceeb');
+  sky.addColorStop(0.45,'#b0e0f5');
+  sky.addColorStop(0.45,'#68d391');
+  sky.addColorStop(1,'#38a169');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // Decorative background clouds
+  clouds.forEach(c=>{
+    ctx.save(); ctx.globalAlpha=c.alpha;
+    ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.ellipse(c.x,c.y,c.w*.5,c.w*.25,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(c.x-c.w*.2,c.y+5,c.w*.3,c.w*.18,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(c.x+c.w*.2,c.y+5,c.w*.3,c.w*.18,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+
+  // Ground
+  ctx.fillStyle='#48bb78'; ctx.fillRect(0,H-40,W,40);
+  ctx.fillStyle='#2f855a'; ctx.fillRect(0,H-44,W,6);
+
+  // Decorative strawberry plants on ground
+  [-20,40,110,200,300,390,470,530].forEach(px=>{
+    // Stem
+    ctx.strokeStyle='#276749'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(px,H-40); ctx.lineTo(px,H-70); ctx.stroke();
+    // Leaves
+    ctx.fillStyle='#38a169';
+    ctx.beginPath(); ctx.ellipse(px-10,H-60,12,6,-0.4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(px+10,H-60,12,6,0.4,0,Math.PI*2); ctx.fill();
+    // Mini strawberry
+    ctx.fillStyle='#e53e3e';
+    ctx.beginPath(); ctx.arc(px,H-72,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#276749';
+    ctx.beginPath(); ctx.moveTo(px,H-80); ctx.lineTo(px-5,H-74); ctx.lineTo(px+5,H-74); ctx.closePath(); ctx.fill();
+  });
+
+  // Dirt path
+  const path=ctx.createLinearGradient(W/2-50,0,W/2+50,0);
+  path.addColorStop(0,'rgba(180,120,60,0.4)');
+  path.addColorStop(0.5,'rgba(180,120,60,0.7)');
+  path.addColorStop(1,'rgba(180,120,60,0.4)');
+  ctx.fillStyle=path; ctx.fillRect(W/2-50,H/2,100,H/2);
+
+  // Draw falling items
+  items.forEach(item=>{
+    ctx.save();
+    ctx.font=`${item.w}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    // Shadow
+    ctx.shadowColor='rgba(0,0,0,0.25)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+    ctx.fillText(item.emoji, item.x, item.y);
+    ctx.restore();
+  });
+
+  // Draw particles
+  particles.forEach(p=>{
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.life);
+    if(p.char){
+      ctx.font=`${p.r*2}px serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p.char, p.x, p.y);
+    } else {
+      ctx.fillStyle=p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  // Draw Tinsley / basket
+  drawPlayer();
+
+  // HUD
+  drawHUD();
+}
+
+function drawPlayer(){
+  const cx = P.x + P.w/2;
+  const cy = P.y + P.h/2;
+
+  // Tinsley sprite (clipped to small rounded rect)
+  if(tinsleyImg.complete && tinsleyImg.naturalWidth>0){
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(P.x, P.y-50, P.w, P.h+20, 8); ctx.clip();
+    ctx.drawImage(tinsleyImg, P.x, P.y-70, P.w, P.w*1.4);
+    ctx.restore();
+  } else {
+    // Fallback cute figure
+    ctx.fillStyle='#c05621';
+    ctx.beginPath(); ctx.arc(cx, P.y-20, 18, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#e53e3e';
+    ctx.fillRect(P.x+20, P.y-2, P.w-40, 30);
+  }
+
+  // Basket
+  const bx=P.x+8, by=P.y+10, bw=P.w-16, bh=34;
+  // Basket body
+  ctx.fillStyle='#68d391';
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,4); ctx.fill();
+  ctx.strokeStyle='#276749'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,4); ctx.stroke();
+  // Basket weave lines
+  ctx.strokeStyle='rgba(39,103,73,0.4)'; ctx.lineWidth=1.5;
+  for(let i=1;i<4;i++){
+    ctx.beginPath(); ctx.moveTo(bx,by+i*bh/4); ctx.lineTo(bx+bw,by+i*bh/4); ctx.stroke();
+  }
+  for(let i=1;i<6;i++){
+    ctx.beginPath(); ctx.moveTo(bx+i*bw/6,by); ctx.lineTo(bx+i*bw/6,by+bh); ctx.stroke();
+  }
+  // Basket handle
+  ctx.strokeStyle='#276749'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(cx,by,bw*.35,Math.PI,0); ctx.stroke();
+
+  // Strawberries in basket
+  for(let i=0;i<Math.min(basketFill,10);i++){
+    const ex=bx+6+i*(bw-10)/10, ey=by+bh*.45;
+    ctx.font='10px serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('🍓',ex,ey);
+  }
+
+  // Glow around basket when almost full
+  if(basketFill>=8){
+    ctx.save();
+    const g=ctx.createRadialGradient(cx,by+bh/2,5,cx,by+bh/2,60);
+    g.addColorStop(0,'rgba(236,201,75,0.35)');
+    g.addColorStop(1,'rgba(236,201,75,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(cx,by+bh/2,60,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawHUD(){
+  if(!running) return;
+  // Timer warning
+  if(timeLeft<=10){
+    ctx.save();
+    ctx.fillStyle=`rgba(229,62,62,${0.08+0.06*Math.sin(Date.now()*.01)})`;
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+  }
+  // Score popup flash
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.roundRect(8,8,130,28,6); ctx.fill();
+  ctx.fillStyle='#ecc94b'; ctx.font='bold 14px monospace';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('🍓 '+score.toLocaleString(), 16, 22);
+
+  // Timer
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.roundRect(W-88,8,80,28,6); ctx.fill();
+  ctx.fillStyle= timeLeft<=10?'#fc8181':'#68d391';
+  ctx.font='bold 14px monospace'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  ctx.fillText('⏱️ '+timeLeft, W-14, 22);
+
+  // Level
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.roundRect(W/2-40,8,80,28,6); ctx.fill();
+  ctx.fillStyle='#f687b3'; ctx.font='bold 13px system-ui';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('LEVEL '+level, W/2, 22);
+
+  // Pause hint
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='10px system-ui';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('P = Pause  •  ← → Move Tinsley', W/2, H-10);
+}
+
+// ── GAME LOOP ─────────────────────────────────────────
+function loop(){
+  update(); draw();
+  requestAnimationFrame(loop);
+}
+
+// ── START GAME ────────────────────────────────────────
+function startGame(){
+  score=0; level=1; lives=3; caught=0; totalCaught=0;
+  timeLeft=60; basketFill=0; running=true; paused=false; gameOver=false;
+  items=[]; particles=[]; spawnTimer=0; cloudTimer=0;
+  P.x=W/2-50;
+
+  scoreEl.textContent='0'; levelEl.textContent='1';
+  caughtEl.textContent='0'; timerEl.textContent='60';
+  updateLives(); updateBasket();
+  btnPause.textContent='⏸ Pause';
+  logEl.innerHTML='';
+
+  [startOv,pauseOv,levelOv,gameOverOv].forEach(o=>o.classList.remove('show'));
+
+  log('🍓 Go Tinsley! Catch those strawberries!','fab');
+  log('🦋 Catch butterflies for bonus points!','good');
+  startTimer();
+}
+
+function togglePause(){
+  if(!running||gameOver) return;
+  paused=!paused;
+  btnPause.textContent=paused?'▶ Resume':'⏸ Pause';
+  paused?pauseOv.classList.add('show'):pauseOv.classList.remove('show');
+  if(paused) log('⏸ Paused. Press P to continue.','sys');
+  else        log('▶ Resumed! Keep catching!','good');
+}
+
+loop();
+</script>
+</body>
+</html>
