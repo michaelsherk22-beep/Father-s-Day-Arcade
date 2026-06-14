@@ -390,41 +390,66 @@ drewImg.src = '../images/Drew Flying.png';
   }
 
   function drawDrew(){
-    // Glow around Drew
-    const glow=ctx.createRadialGradient(D.x+D.w/2,D.y+D.h/2,6,D.x+D.w/2,D.y+D.h/2,70);
-    glow.addColorStop(0,'rgba(59,130,246,0.3)'); glow.addColorStop(1,'rgba(59,130,246,0)');
-    ctx.fillStyle=glow;
-    ctx.beginPath(); ctx.arc(D.x+D.w/2,D.y+D.h/2,70,0,Math.PI*2); ctx.fill();
+  // Glow around Drew
+  const glow = ctx.createRadialGradient(
+    D.x + D.w / 2,
+    D.y + D.h / 2,
+    6,
+    D.x + D.w / 2,
+    D.y + D.h / 2,
+    70
+  );
+  glow.addColorStop(0, 'rgba(59,130,246,0.3)');
+  glow.addColorStop(1, 'rgba(59,130,246,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(D.x + D.w / 2, D.y + D.h / 2, 70, 0, Math.PI * 2);
+  ctx.fill();
 
-    if(drewImg.complete && drewImg.naturalWidth>0){
-      // Draw with white bg blended into the dark scene using multiply-like approach
-      ctx.save();
-      // Clip to rounded rect
-      ctx.beginPath();
-      ctx.roundRect(D.x, D.y, D.w, D.h, 12);
-      ctx.clip();
-      // Dark overlay first so white bg looks invisible
-      ctx.fillStyle='#0b1120'; ctx.fillRect(D.x,D.y,D.w,D.h);
-      ctx.globalCompositeOperation='lighten';
-      ctx.drawImage(drewImg, D.x, D.y, D.w, D.h);
-      ctx.globalCompositeOperation='source-over';
-      ctx.restore();
-    } else {
-      // Fallback
-      ctx.fillStyle='#1d4ed8';
-      ctx.beginPath(); ctx.roundRect(D.x,D.y,D.w,D.h,10); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.font='bold 26px system-ui';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('D', D.x+D.w/2, D.y+D.h/2);
+  // Draw Drew's transparent PNG if loaded
+  if (drewImg.complete && drewImg.naturalWidth > 0) {
+    ctx.save();
+    // Preserve aspect ratio of the source image inside the D.w x D.h box
+    const srcW = drewImg.width;
+    const srcH = drewImg.height;
+    const aspect = srcW / srcH || 1;
+
+    let drawW = D.w;
+    let drawH = drawW / aspect;
+    if (drawH > D.h) {
+      drawH = D.h;
+      drawW = drawH * aspect;
     }
 
-    // "SUPERMAN DREW" label under sprite
-    ctx.fillStyle='rgba(2,6,23,0.7)';
-    ctx.beginPath(); ctx.roundRect(D.x, D.y+D.h+2, D.w, 16, 4); ctx.fill();
-    ctx.fillStyle='#facc15'; ctx.font='bold 9px system-ui';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('SUPERMAN DREW', D.x+D.w/2, D.y+D.h+10);
+    const dx = D.x + (D.w - drawW) / 2;
+    const dy = D.y + (D.h - drawH) / 2;
+
+    ctx.drawImage(drewImg, 0, 0, srcW, srcH, dx, dy, drawW, drawH);
+    ctx.restore();
+  } else {
+    // Fallback if image hasn't loaded yet
+    ctx.fillStyle = '#1d4ed8';
+    ctx.beginPath();
+    ctx.roundRect(D.x, D.y, D.w, D.h, 10);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 26px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('D', D.x + D.w / 2, D.y + D.h / 2);
   }
+
+  // "SUPERMAN DREW" label under sprite
+  ctx.fillStyle = 'rgba(2,6,23,0.7)';
+  ctx.beginPath();
+  ctx.roundRect(D.x, D.y + D.h + 2, D.w, 16, 4);
+  ctx.fill();
+  ctx.fillStyle = '#facc15';
+  ctx.font = 'bold 9px system-ui';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SUPERMAN DREW', D.x + D.w / 2, D.y + D.h + 10);
+}
 
   function drawBlasts(){
     blasts.forEach(b=>{
