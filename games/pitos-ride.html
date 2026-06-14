@@ -310,16 +310,17 @@
     const bannerSecondary = document.getElementById("banner-secondary");
     const bannerImage = document.getElementById("banner-image");
 
-    // Load Pito sprite (and use as banner image)
-    const pitoImage = new Image();
-    let pitoLoaded = false;
-    pitoImage.onload = () => {
-      pitoLoaded = true;
-      bannerImage.src = pitoImage.src;
-      bannerImage.style.display = "block";
-    };
-    pitoImage.onerror = () => { pitoLoaded = false; };
-    pitoImage.src = "Pito.jpg"; // should sit next to this HTML file
+    /// Load Pito sprite (and use as banner image)
+const pitoImage = new Image();
+let pitoLoaded = false;
+pitoImage.onload = () => {
+  pitoLoaded = true;
+  bannerImage.src = pitoImage.src;
+  bannerImage.style.display = "block";
+};
+pitoImage.onerror = () => { pitoLoaded = false; };
+// game file is in /games, image is in /images, so go up one level then into images
+pitoImage.src = "../images/Pito.png";
 
     // World constants (easier settings)
     const GRAVITY = 2000;          // px/s^2
