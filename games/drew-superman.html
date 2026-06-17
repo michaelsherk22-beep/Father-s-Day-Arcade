@@ -102,13 +102,13 @@
       <div class="inst-row"><span class="key">↑ ↓ ← →</span><span>Fly Superman Drew anywhere on screen</span></div>
       <div class="inst-row"><span class="key">SPACE</span><span>Fire an energy blast — press once per shot!</span></div>
       <div class="inst-row"><span class="key">P</span><span>Pause / Resume the game</span></div>
-      <div class="inst-row"><span class="key">Goal</span><span>Destroy all drones each wave. They come from the RIGHT — watch them approach, then blast!</span></div>
-      <div class="inst-row"><span class="key">💡 Tip</span><span>Drones are slow. Take your time, line up your shot, then press SPACE!</span></div>
+      <div class="inst-row"><span class="key">Goal</span><span>Destroy all zombies each wave. They come from the RIGHT — watch them approach, then blast!</span></div>
+      <div class="inst-row"><span class="key">💡 Tip</span><span>Zombies are slow. Take your time, line up your shot, then press SPACE!</span></div>
     </div>
 
     <div class="stat-line"><span>Score</span><span class="stat-val" id="scoreEl">0</span></div>
     <div class="stat-line"><span>Wave</span><span class="stat-val" id="waveEl">1</span></div>
-    <div class="stat-line"><span>Drones left</span><span id="enemiesEl">—</span></div>
+    <div class="stat-line"><span>Zombies left</span><span id="enemiesEl">—</span></div>
     <div class="stat-line" style="flex-direction:column;gap:4px;">
       <span style="font-size:.74rem;color:var(--muted);">Superman Drew's Health</span>
       <div class="hbar-wrap"><div class="hbar" id="hbar" style="width:100%"></div></div>
@@ -138,9 +138,13 @@
   const logEl     = document.getElementById('logEl');
   const btnPause  = document.getElementById('btnPause');
 
-// Drew's flying image from the shared images folder
+// Drew's flying image
 const drewImg = new Image();
 drewImg.src = '../images/Drew Flying.png';
+
+// Zombie image
+const zombieImg = new Image();
+zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
 
   let keys = {}, keyJustPressed = {};
   let score=0, wave=1, hp=300, maxHp=300;
@@ -162,25 +166,22 @@ drewImg.src = '../images/Drew Flying.png';
   }
 
   // ── WAVE SPAWNING ────────────────────────────────────
-  // Drones trickle in one at a time with a big gap between them
-  // so the player can clearly see and aim at each one
   function spawnWave(){
     if(waveLocked) return;
     waveLocked = true;
 
-    const count = Math.min(3 + (wave - 1), 9); // wave1=3, wave2=4 … max 9
+    const count = Math.min(3 + (wave - 1), 9);
     waveEl.textContent = wave;
-    log(`Wave ${wave}: ${count} drones incoming — watch the RIGHT side!`, 'sys');
+    log(`Wave ${wave}: ${count} zombies incoming — watch the RIGHT side!`, 'sys');
 
     for(let i=0; i<count; i++){
       setTimeout(()=>{
         if(!running) return;
-        // Speed: wave 1 = 0.55, grows very gradually
         const spd = 0.55 + (wave-1)*0.12 + Math.random()*0.15;
         enemies.push({
           x: W + 60,
           y: 40 + Math.random()*(H - 80),
-          w: 42, h: 32,
+          w: 48, h: 48, // Increased size slightly to fit the zombie sprite better
           vx: -spd,
           wobble: Math.random()*Math.PI*2,
           wobbleAmp: 0.5,
@@ -188,7 +189,7 @@ drewImg.src = '../images/Drew Flying.png';
           flash: 0
         });
         enemiesEl.textContent = enemies.length;
-      }, i * 2200); // 2.2 seconds between each drone — plenty of time to see it
+      }, i * 2200); 
     }
   }
 
@@ -201,7 +202,7 @@ drewImg.src = '../images/Drew Flying.png';
     hbarEl.style.width='100%'; hbarEl.className='hbar';
     btnPause.textContent='⏸ Pause';
     logEl.innerHTML='';
-    log('Superman Drew takes flight! Drones incoming from the RIGHT.','sys');
+    log('Superman Drew takes flight! Zombies incoming from the RIGHT.','sys');
     log('Fly into position and press SPACE to blast them!','sys');
     spawnWave();
   }
@@ -238,7 +239,6 @@ drewImg.src = '../images/Drew Flying.png';
   function update(){
     if(!running || paused) return;
 
-    // Move Drew — full screen
     if(keys['ArrowUp'])    D.y = Math.max(8, D.y - D.speed);
     if(keys['ArrowDown'])  D.y = Math.min(H-D.h-8, D.y + D.speed);
     if(keys['ArrowLeft'])  D.x = Math.max(8, D.x - D.speed);
@@ -247,8 +247,6 @@ drewImg.src = '../images/Drew Flying.png';
     bgOffset = (bgOffset + 0.45) % W;
     shootCd  = Math.max(0, shootCd - 1);
 
-    // MANUAL SHOOT — one shot per Space press (not held)
-    // Cooldown of 18 frames so rapid tapping is fine but holding doesn't flood
     if(keyJustPressed[' '] && shootCd === 0){
       const cx = D.x + D.w + 4;
       const cy = D.y + D.h * 0.42;
@@ -258,13 +256,11 @@ drewImg.src = '../images/Drew Flying.png';
     }
     keyJustPressed = {};
 
-    // Move blasts straight right
     blasts = blasts.filter(b=>{
       b.x += b.vx; b.y += b.vy;
       return b.x < W+30 && b.y > -10 && b.y < H+10;
     });
 
-    // Move enemies — slow wobble, straight left
     enemies.forEach(e=>{
       e.wobble += 0.035;
       e.x += e.vx;
@@ -273,7 +269,6 @@ drewImg.src = '../images/Drew Flying.png';
       if(e.flash > 0) e.flash--;
     });
 
-    // Blast hits enemy — 1 hit kill
     blasts.forEach(b=>{
       if(b.dead) return;
       enemies.forEach(e=>{
@@ -284,14 +279,13 @@ drewImg.src = '../images/Drew Flying.png';
           score += 100 * wave;
           scoreEl.textContent = score;
           spawnParticles(e.x+e.w/2, e.y+e.h/2, '#facc15', 20);
-          log(`💥 Drone destroyed! +${100*wave} pts`, 'good');
+          log(`💥 Zombie destroyed! +${100*wave} pts`, 'good');
         }
       });
     });
     blasts  = blasts.filter(b=>!b.dead);
     enemies = enemies.filter(e=>!e.dead);
 
-    // Drone collides with Drew — only 12 damage, generous hit box shrink
     enemies.forEach(e=>{
       if(e.dead) return;
       const hit = e.x < D.x+D.w-18 && e.x+e.w > D.x+18 &&
@@ -301,24 +295,21 @@ drewImg.src = '../images/Drew Flying.png';
         hp = Math.max(0, hp - 12);
         updateHP();
         spawnParticles(D.x+D.w/2, D.y+D.h/2, '#ef4444', 12);
-        log('Drone hit Superman Drew! -12 HP', 'bad');
+        log('Zombie hit Superman Drew! -12 HP', 'bad');
       }
-      // Drone escapes off left — tiny penalty, no big deal
       if(e.x + e.w < -10){
         e.dead = true;
         hp = Math.max(0, hp - 5);
         updateHP();
-        log('Drone slipped past! -5 HP', 'bad');
+        log('Zombie slipped past! -5 HP', 'bad');
       }
     });
     enemies = enemies.filter(e=>!e.dead);
     enemiesEl.textContent = enemies.length;
 
-    // Particles decay
     particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.life-=p.decay; p.vx*=0.91; p.vy*=0.91; });
     particles = particles.filter(p=>p.life>0);
 
-    // Wave cleared
     if(enemies.length===0 && running && !gameOver && waveLocked){
       waveLocked = false;
       wave++;
@@ -326,7 +317,6 @@ drewImg.src = '../images/Drew Flying.png';
       setTimeout(()=>{ if(running && !paused) spawnWave(); }, 3000);
     }
 
-    // Game over
     if(hp<=0 && !gameOver){
       gameOver=true; running=false;
       log('Superman Drew is down! Press Restart to fly again.', 'bad');
@@ -354,7 +344,6 @@ drewImg.src = '../images/Drew Flying.png';
       ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
     });
 
-    // Speed lines (like the photo background)
     ctx.save(); ctx.globalAlpha=0.18;
     [[0.15,'#f472b6'],[0.42,'#818cf8'],[0.68,'#38bdf8'],[0.88,'#f472b6']].forEach(([yf,col])=>{
       ctx.strokeStyle=col; ctx.lineWidth=2;
@@ -362,7 +351,6 @@ drewImg.src = '../images/Drew Flying.png';
     });
     ctx.restore();
 
-    // Scrolling city buildings
     ctx.fillStyle='#0b1120';
     const buildings=[
       [0,60,55,130],[55,80,40,110],[95,50,50,150],[145,75,38,125],
@@ -384,20 +372,14 @@ drewImg.src = '../images/Drew Flying.png';
       }
     });
 
-    // Water shimmer
     ctx.fillStyle='#0c1a35'; ctx.fillRect(0,H-32,W,32);
     ctx.fillStyle='rgba(59,130,246,0.06)'; ctx.fillRect(0,H-32,W,32);
   }
 
  function drawDrew(){
-  // Glow around Drew
   const glow = ctx.createRadialGradient(
-    D.x + D.w / 2,
-    D.y + D.h / 2,
-    6,
-    D.x + D.w / 2,
-    D.y + D.h / 2,
-    70
+    D.x + D.w / 2, D.y + D.h / 2, 6,
+    D.x + D.w / 2, D.y + D.h / 2, 70
   );
   glow.addColorStop(0, 'rgba(59,130,246,0.3)');
   glow.addColorStop(1, 'rgba(59,130,246,0)');
@@ -406,7 +388,6 @@ drewImg.src = '../images/Drew Flying.png';
   ctx.arc(D.x + D.w / 2, D.y + D.h / 2, 70, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw Drew's transparent PNG if loaded
   if (drewImg.complete && drewImg.naturalWidth > 0) {
     ctx.save();
     const srcW = drewImg.width;
@@ -426,69 +407,65 @@ drewImg.src = '../images/Drew Flying.png';
     ctx.drawImage(drewImg, 0, 0, srcW, srcH, dx, dy, drawW, drawH);
     ctx.restore();
   } else {
-    // Fallback if image hasn't loaded yet
     ctx.fillStyle = '#1d4ed8';
-    ctx.beginPath();
-    ctx.roundRect(D.x, D.y, D.w, D.h, 10);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 26px system-ui';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.beginPath(); ctx.roundRect(D.x, D.y, D.w, D.h, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 26px system-ui';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('D', D.x + D.w / 2, D.y + D.h / 2);
   }
 
-  // "SUPERMAN DREW" label under sprite
   ctx.fillStyle = 'rgba(2,6,23,0.7)';
-  ctx.beginPath();
-  ctx.roundRect(D.x, D.y + D.h + 2, D.w, 16, 4);
-  ctx.fill();
-  ctx.fillStyle = '#facc15';
-  ctx.font = 'bold 9px system-ui';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.beginPath(); ctx.roundRect(D.x, D.y + D.h + 2, D.w, 16, 4); ctx.fill();
+  ctx.fillStyle = '#facc15'; ctx.font = 'bold 9px system-ui';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('SUPERMAN DREW', D.x + D.w / 2, D.y + D.h + 10);
 }
 
   function drawBlasts(){
     blasts.forEach(b=>{
-      // Outer glow
       const g=ctx.createRadialGradient(b.x+b.w/2,b.y,1,b.x+b.w/2,b.y,b.w*1.4);
       g.addColorStop(0,'rgba(191,219,254,0.95)');
       g.addColorStop(0.4,'rgba(59,130,246,0.7)');
       g.addColorStop(1,'rgba(59,130,246,0)');
       ctx.fillStyle=g;
       ctx.beginPath(); ctx.ellipse(b.x+b.w/2,b.y,b.w,b.h*.85,0,0,Math.PI*2); ctx.fill();
-      // Bright core
       ctx.fillStyle='#eff6ff';
       ctx.beginPath(); ctx.ellipse(b.x+b.w/2,b.y,b.w*.3,b.h*.3,0,0,Math.PI*2); ctx.fill();
     });
   }
 
+  // UPDATED: Draw Zombies instead of Drones
   function drawEnemies(){
     enemies.forEach(e=>{
-      // Body
-      ctx.fillStyle = e.flash>0 ? '#fff' : '#dc2626';
-      ctx.beginPath(); ctx.roundRect(e.x,e.y,e.w,e.h,6); ctx.fill();
-
-      // Drone details — spinning rotors
-      const spin=Date.now()*0.014;
-      ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.lineWidth=3;
-      [[-6,-6],[e.w+6,-6],[-6,e.h+6],[e.w+6,e.h+6]].forEach(([rx,ry])=>{
-        ctx.save(); ctx.translate(e.x+rx,e.y+ry); ctx.rotate(spin);
-        ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(8,0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0,-8); ctx.lineTo(0,8); ctx.stroke();
+      if (zombieImg.complete && zombieImg.naturalWidth > 0) {
+        // Draw the zombie PNG
+        ctx.save();
+        
+        // Add a red flash effect when hit (optional, if you implement flash logic)
+        if(e.flash > 0) {
+           ctx.globalCompositeOperation = "source-atop";
+           ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+           ctx.fillRect(e.x-10, e.y-10, e.w+20, e.h+20);
+        }
+        
+        // Make the sprite slightly larger than the hitbox for visual appeal
+        const spriteSizeOffset = 16; 
+        ctx.drawImage(zombieImg, e.x - spriteSizeOffset/2, e.y - spriteSizeOffset/2, e.w + spriteSizeOffset, e.h + spriteSizeOffset);
         ctx.restore();
-      });
+      } else {
+        // Fallback: Red square if image fails to load
+        ctx.fillStyle = e.flash>0 ? '#fff' : '#dc2626';
+        ctx.beginPath(); ctx.roundRect(e.x,e.y,e.w,e.h,6); ctx.fill();
+        
+        // Glowing red eye for fallback
+        const pulse=0.55+0.45*Math.sin(Date.now()*.01);
+        ctx.fillStyle=`rgba(239,68,68,${pulse})`;
+        ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,7,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,2.5,0,Math.PI*2); ctx.fill();
+      }
 
-      // Glowing red eye
-      const pulse=0.55+0.45*Math.sin(Date.now()*.01);
-      ctx.fillStyle=`rgba(239,68,68,${pulse})`;
-      ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,7,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='rgba(255,255,255,0.9)';
-      ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,2.5,0,Math.PI*2); ctx.fill();
-
-      // Warning arrow pointing at drone from the right edge
+      // Warning arrow pointing at zombie from the right edge
       if(e.x > W - 80){
         ctx.fillStyle='rgba(250,204,21,0.9)';
         ctx.font='bold 14px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
@@ -497,31 +474,19 @@ drewImg.src = '../images/Drew Flying.png';
     });
   }
 
-  function drawParticles(){
-    particles.forEach(p=>{
-      ctx.globalAlpha=Math.max(0,p.life);
-      ctx.fillStyle=p.color;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha=1;
-  }
-
   function drawHUD(){
-    // Score
     ctx.fillStyle='rgba(2,6,23,0.82)';
     ctx.beginPath(); ctx.roundRect(8,8,155,30,6); ctx.fill();
     ctx.fillStyle='#facc15'; ctx.font='bold 15px monospace';
     ctx.textAlign='left'; ctx.textBaseline='middle';
     ctx.fillText('SCORE: '+score.toLocaleString(), 16, 23);
 
-    // Wave
     ctx.fillStyle='rgba(2,6,23,0.82)';
     ctx.beginPath(); ctx.roundRect(W-110,8,102,30,6); ctx.fill();
     ctx.fillStyle='#bfdbfe'; ctx.font='bold 14px monospace';
     ctx.textAlign='right'; ctx.textBaseline='middle';
     ctx.fillText('WAVE '+wave, W-14, 23);
 
-    // Shoot cooldown bar so player knows when they can fire again
     const cdPct = 1-(shootCd/18);
     ctx.fillStyle='rgba(2,6,23,0.8)';
     ctx.beginPath(); ctx.roundRect(W/2-55,8,110,26,6); ctx.fill();
@@ -531,14 +496,12 @@ drewImg.src = '../images/Drew Flying.png';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(cdPct>=1 ? '⚡ SPACE = FIRE!' : 'Reloading…', W/2, 21);
 
-    // Bottom control reminder
     ctx.fillStyle='rgba(2,6,23,0.75)';
     ctx.beginPath(); ctx.roundRect(W/2-145,H-26,290,20,5); ctx.fill();
     ctx.fillStyle='rgba(148,163,184,0.9)'; ctx.font='10px system-ui';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('↑↓←→ Fly  •  SPACE Fire  •  P Pause  •  R Restart', W/2, H-16);
 
-    // PAUSED overlay
     if(paused){
       ctx.fillStyle='rgba(2,6,23,0.8)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#facc15'; ctx.font='bold 34px system-ui';
@@ -548,20 +511,19 @@ drewImg.src = '../images/Drew Flying.png';
       ctx.fillText('Press P or ▶ Resume to continue', W/2, H/2+20);
     }
 
-    // Start screen
     if(showStart){
       ctx.fillStyle='rgba(2,6,23,0.9)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#3b82f6'; ctx.font='bold 30px system-ui';
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('⚡ SUPERMAN DREW', W/2, H/2-80);
       ctx.fillStyle='#e5e7eb'; ctx.font='16px system-ui';
-      ctx.fillText('Defend Seattle from villain drones!', W/2, H/2-48);
+      ctx.fillText('Defend Seattle from villain zombies!', W/2, H/2-48);
       const lines=[
         '• Arrow keys to fly Drew anywhere',
         '• Press SPACE to fire energy blasts',
-        '• Drones come slowly from the RIGHT',
+        '• Zombies come slowly from the RIGHT',
         '• Watch them fly in — then take aim and shoot!',
-        '• Each drone takes 1 hit to destroy',
+        '• Each zombie takes 1 hit to destroy',
         '• Press P to pause anytime',
       ];
       ctx.fillStyle='#94a3b8'; ctx.font='13px system-ui';
@@ -570,7 +532,6 @@ drewImg.src = '../images/Drew Flying.png';
       ctx.fillText('Press ▶ START to begin!', W/2, H/2+126);
     }
 
-    // Game over
     if(gameOver){
       ctx.fillStyle='rgba(2,6,23,0.88)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#ef4444'; ctx.font='bold 36px system-ui';
