@@ -138,13 +138,13 @@
   const logEl     = document.getElementById('logEl');
   const btnPause  = document.getElementById('btnPause');
 
-// Drew's flying image
+// Drew's flying image from the shared images folder
 const drewImg = new Image();
 drewImg.src = '../images/Drew Flying.png';
 
 // Zombie image
 const zombieImg = new Image();
-zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
+zombieImg.src = '../images/zombie.png';
 
   let keys = {}, keyJustPressed = {};
   let score=0, wave=1, hp=300, maxHp=300;
@@ -170,7 +170,7 @@ zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
     if(waveLocked) return;
     waveLocked = true;
 
-    const count = Math.min(3 + (wave - 1), 9);
+    const count = Math.min(3 + (wave - 1), 9); 
     waveEl.textContent = wave;
     log(`Wave ${wave}: ${count} zombies incoming — watch the RIGHT side!`, 'sys');
 
@@ -181,7 +181,7 @@ zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
         enemies.push({
           x: W + 60,
           y: 40 + Math.random()*(H - 80),
-          w: 48, h: 48, // Increased size slightly to fit the zombie sprite better
+          w: 42, h: 32,
           vx: -spd,
           wobble: Math.random()*Math.PI*2,
           wobbleAmp: 0.5,
@@ -408,16 +408,24 @@ zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
     ctx.restore();
   } else {
     ctx.fillStyle = '#1d4ed8';
-    ctx.beginPath(); ctx.roundRect(D.x, D.y, D.w, D.h, 10); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 26px system-ui';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.beginPath();
+    ctx.roundRect(D.x, D.y, D.w, D.h, 10);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 26px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText('D', D.x + D.w / 2, D.y + D.h / 2);
   }
 
   ctx.fillStyle = 'rgba(2,6,23,0.7)';
-  ctx.beginPath(); ctx.roundRect(D.x, D.y + D.h + 2, D.w, 16, 4); ctx.fill();
-  ctx.fillStyle = '#facc15'; ctx.font = 'bold 9px system-ui';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.beginPath();
+  ctx.roundRect(D.x, D.y + D.h + 2, D.w, 16, 4);
+  ctx.fill();
+  ctx.fillStyle = '#facc15';
+  ctx.font = 'bold 9px system-ui';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillText('SUPERMAN DREW', D.x + D.w / 2, D.y + D.h + 10);
 }
 
@@ -434,30 +442,30 @@ zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
     });
   }
 
-  // UPDATED: Draw Zombies instead of Drones
   function drawEnemies(){
     enemies.forEach(e=>{
       if (zombieImg.complete && zombieImg.naturalWidth > 0) {
-        // Draw the zombie PNG
         ctx.save();
-        
-        // Add a red flash effect when hit (optional, if you implement flash logic)
-        if(e.flash > 0) {
-           ctx.globalCompositeOperation = "source-atop";
-           ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-           ctx.fillRect(e.x-10, e.y-10, e.w+20, e.h+20);
+        if (e.flash > 0) {
+          ctx.globalAlpha = 0.5;
         }
-        
-        // Make the sprite slightly larger than the hitbox for visual appeal
-        const spriteSizeOffset = 16; 
-        ctx.drawImage(zombieImg, e.x - spriteSizeOffset/2, e.y - spriteSizeOffset/2, e.w + spriteSizeOffset, e.h + spriteSizeOffset);
+        // Draw the zombie image slightly larger than the hitbox to look nice
+        ctx.drawImage(zombieImg, e.x - 10, e.y - 15, e.w + 20, e.h + 30);
         ctx.restore();
       } else {
-        // Fallback: Red square if image fails to load
+        // Fallback: original drone drawing
         ctx.fillStyle = e.flash>0 ? '#fff' : '#dc2626';
         ctx.beginPath(); ctx.roundRect(e.x,e.y,e.w,e.h,6); ctx.fill();
-        
-        // Glowing red eye for fallback
+
+        const spin=Date.now()*0.014;
+        ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.lineWidth=3;
+        [[-6,-6],[e.w+6,-6],[-6,e.h+6],[e.w+6,e.h+6]].forEach(([rx,ry])=>{
+          ctx.save(); ctx.translate(e.x+rx,e.y+ry); ctx.rotate(spin);
+          ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(8,0); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0,-8); ctx.lineTo(0,8); ctx.stroke();
+          ctx.restore();
+        });
+
         const pulse=0.55+0.45*Math.sin(Date.now()*.01);
         ctx.fillStyle=`rgba(239,68,68,${pulse})`;
         ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,7,0,Math.PI*2); ctx.fill();
@@ -465,13 +473,21 @@ zombieImg.src = '../images/zombie.png'; // Make sure this matches your file path
         ctx.beginPath(); ctx.arc(e.x+e.w/2,e.y+e.h/2,2.5,0,Math.PI*2); ctx.fill();
       }
 
-      // Warning arrow pointing at zombie from the right edge
       if(e.x > W - 80){
         ctx.fillStyle='rgba(250,204,21,0.9)';
         ctx.font='bold 14px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
         ctx.fillText('►', W-6, e.y+e.h/2);
       }
     });
+  }
+
+  function drawParticles(){
+    particles.forEach(p=>{
+      ctx.globalAlpha=Math.max(0,p.life);
+      ctx.fillStyle=p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
   }
 
   function drawHUD(){
