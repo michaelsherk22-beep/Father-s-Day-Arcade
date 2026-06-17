@@ -208,7 +208,6 @@
 
       <button class="btn primary" id="startBtn">Start Flight</button>
       <button class="btn success" id="resetBtn">Reset</button>
-      <!-- PAUSE: new button -->
       <button class="btn" id="pauseBtn">Pause</button>
 
       <div class="controls">
@@ -238,6 +237,29 @@
       <div class="result-banner" id="resultBanner"></div>
     </aside>
   </main>
+
+  <!-- Full-width Uncle David image outside the banner -->
+  <section class="panel" style="margin-top:10px;">
+    <div class="panel-header">
+      <div class="panel-title">Captain Uncle David</div>
+      <div class="panel-sub">Your flight mentor in full view.</div>
+    </div>
+    <div style="
+      width:100%;
+      max-width:600px;
+      margin:0 auto;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(148,163,184,0.35);
+      background:#020617;
+      box-shadow:0 10px 28px rgba(0,0,0,0.9);
+    ">
+      <img src="../images/Uncle David.png"
+           alt="Uncle David"
+           style="display:block;width:100%;height:auto;">
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -249,7 +271,7 @@ const turnInfo = document.getElementById("turnInfo");
 const hintText = document.getElementById("hintText");
 const startBtn = document.getElementById("startBtn");
 const resetBtn = document.getElementById("resetBtn");
-const pauseBtn = document.getElementById("pauseBtn"); // PAUSE: button ref
+const pauseBtn = document.getElementById("pauseBtn");
 const logPanel = document.getElementById("logPanel");
 const resultBanner = document.getElementById("resultBanner");
 const touchButtons = document.querySelectorAll(".touch-btn");
@@ -257,17 +279,14 @@ const touchButtons = document.querySelectorAll(".touch-btn");
 const GAME_STATE = {
   READY: "ready",
   RUNNING: "running",
-  PAUSED: "paused",   // PAUSE: new state
+  PAUSED: "paused",
   OVER: "over"
 };
 
 let state = GAME_STATE.READY;
-
-// Endless flight stats
-let distance = 0;       // meters flown
+let distance = 0;
 let bestDistance = 0;
 
-// plane stays near left, world scrolls left
 const plane = {
   x: 120,
   y: canvas.height/2,
@@ -276,7 +295,6 @@ const plane = {
   boostTime: 0
 };
 
-// load plane image
 const planeImg = new Image();
 planeImg.src = "../images/PlaneDrawing.png";
 
@@ -311,7 +329,7 @@ function resetGame(){
   hintText.textContent = "Continuous flight. Avoid birds, storms, and mountains. See how far you can go!";
   logPanel.innerHTML = "";
   log("Endless training loaded. Smooth and steady, co-pilot.", "system");
-  pauseBtn.textContent = "Pause"; // PAUSE: reset label
+  pauseBtn.textContent = "Pause";
   draw();
 }
 
@@ -353,7 +371,6 @@ function startGame(){
   requestAnimationFrame(gameLoop);
 }
 
-// PAUSE: toggle function
 function togglePause(){
   if (state === GAME_STATE.RUNNING){
     state = GAME_STATE.PAUSED;
@@ -377,18 +394,15 @@ function gameLoop(){
 }
 
 function update(){
-  // vertical control
   if (keys["ArrowUp"] || keys["KeyW"]) plane.vy = -2.1;
   else if (keys["ArrowDown"] || keys["KeyS"]) plane.vy = 2.1;
   else plane.vy = 0;
 
-  // gentle horizontal wiggle
   if (keys["ArrowLeft"] || keys["KeyA"]) plane.x -= 0.8;
   if (keys["ArrowRight"] || keys["KeyD"]) plane.x += 0.8;
   if (plane.x < 80) plane.x = 80;
   if (plane.x > canvas.width-80) plane.x = canvas.width-80;
 
-  // boost
   if ((keys["Space"] || keys["KeyK"]) && plane.boostTime <= 0){
     plane.boostTime = 32;
     log("Captain adds a little extra thrust!", "system");
@@ -400,18 +414,15 @@ function update(){
     scrollSpeed = 2.4;
   }
 
-  // move plane vertically
   plane.y += plane.vy;
   if (plane.y < 20) plane.y = 20;
   if (plane.y > canvas.height-20) plane.y = canvas.height-20;
 
-  // move world left
   distance += scrollSpeed;
-  topStatus.textContent = (state === GAME_STATE.RUNNING)
-    ? "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)"
-    : topStatus.textContent;
+  if (state === GAME_STATE.RUNNING) {
+    topStatus.textContent = "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)";
+  }
 
-  // clouds
   for (const c of clouds){
     c.x -= c.speed;
     if (c.x < -60){
@@ -421,7 +432,6 @@ function update(){
     }
   }
 
-  // obstacles
   for (const o of obstacles){
     o.x -= scrollSpeed;
   }
@@ -433,7 +443,6 @@ function update(){
     obstacles.push(makeObstacleAt(newX));
   }
 
-  // collision
   const planeRect = {
     x: plane.x - plane.size,
     y: plane.y - plane.size,
@@ -447,7 +456,6 @@ function update(){
     }
   }
 
-  // slight difficulty ramp
   if (distance > 400 && obstacles.length < 10){
     const lastX = Math.max(...obstacles.map(o=>o.x));
     obstacles.push(makeObstacleAt(lastX + 90 + Math.random()*60));
@@ -463,7 +471,10 @@ function crash(type){
   if (distance > bestDistance) bestDistance = distance;
   resultBanner.style.display = "block";
   resultBanner.className = "result-banner lose";
-  resultBanner.textContent = "We clipped a " + (type==="bird"?"flock of birds":type==="storm"?"storm cloud":"mountain") + ". You flew "+Math.floor(distance)+" m!";
+  resultBanner.textContent =
+    "We clipped a " +
+    (type==="bird"?"flock of birds":type==="storm"?"storm cloud":"mountain") +
+    ". You flew "+Math.floor(distance)+" m!";
   topStatus.textContent = "Flight interrupted · " + Math.floor(distance) + " m";
   log("Obstacle collision. Nice run—see if you can beat your distance.", "system");
 }
@@ -556,12 +567,9 @@ function drawPlane(x,y){
   }
 }
 
-// input
 window.addEventListener("keydown", e=>{
   if (e.code === "Space") e.preventDefault();
   keys[e.code] = true;
-
-  // PAUSE: keyboard toggle with P
   if (e.code === "KeyP"){
     if (state === GAME_STATE.RUNNING || state === GAME_STATE.PAUSED){
       togglePause();
@@ -597,10 +605,9 @@ function applyTouch(dir){
   }
 }
 
-// buttons
 startBtn.addEventListener("click", startGame);
 resetBtn.addEventListener("click", resetGame);
-pauseBtn.addEventListener("click", togglePause); // PAUSE: button handler
+pauseBtn.addEventListener("click", togglePause);
 
 window.addEventListener("DOMContentLoaded", resetGame);
 </script>
