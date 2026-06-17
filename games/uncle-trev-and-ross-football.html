@@ -74,7 +74,6 @@
       display: block;
       margin: 6px auto 0;
     }
-    /* Right panel image */
     .coach-hero {
       width: 100%;
       border-radius: 10px;
@@ -170,7 +169,6 @@
     <!-- Right: coaches, status, log -->
     <aside class="panel">
       <div class="coach-hero">
-        <!-- change src to match your file name -->
         <img src="../images/Uncle Trev and Ross.png" alt="Uncle Trev &amp; Ross Coaching Challenge poster" />
       </div>
 
@@ -215,45 +213,41 @@
 
   <script>
     const canvas = document.getElementById('field');
-    const ctx = canvas.getContext('2d'); // 2D canvas for the game field [web:146]
+    const ctx = canvas.getContext('2d');
     const statusMainEl = document.getElementById('statusMain');
     const scorePlayerEl = document.getElementById('scorePlayer');
-    const scoreCpuEl = document.getElementById('scoreCpu');
+    const scoreCpuEl   = document.getElementById('scoreCpu');
     const driveCountEl = document.getElementById('driveCount');
-    const logBoxEl = document.getElementById('logBox');
-    const btnDrive = document.getElementById('btnDrive');
-    const btnGame = document.getElementById('btnGame');
+    const logBoxEl     = document.getElementById('logBox');
+    const btnDrive     = document.getElementById('btnDrive');
+    const btnGame      = document.getElementById('btnGame');
 
-    const WIDTH = canvas.width;
-    const HEIGHT = canvas.height;
-
+    const WIDTH          = canvas.width;
+    const HEIGHT         = canvas.height;
     const END_ZONE_WIDTH = 70;
-    const PLAYER_SPEED = 3;
-    const CPU_SPEED = 2.3;
+    const PLAYER_SPEED   = 3;
+    const CPU_SPEED      = 2.3;
 
-    let keys = {};
+    // ── Sprite sizes ──────────────────────────────────────────────
+    // The hitbox stays 22×22 but we draw the Red Baron sprite larger
+    const SPRITE_W = 52;   // rendered sprite width  (px on canvas)
+    const SPRITE_H = 52;   // rendered sprite height
+
+    // ── Load Red Baron sprite ─────────────────────────────────────
+    const baronImg = new Image();
+    baronImg.src = '../images/Red Baron.png';   // ← adjust if your path differs
+
+    let keys        = {};
     let scorePlayer = 0;
-    let scoreCpu = 0;
-    let driveCount = 0;
-    let inDrive = true;
+    let scoreCpu    = 0;
+    let driveCount  = 0;
+    let inDrive     = true;
+    let facingLeft  = false;   // tracks last horizontal direction
 
-    const player = {
-      x: 40,
-      y: HEIGHT / 2,
-      w: 22,
-      h: 22,
-      color: '#f97316',
-      trail: []
-    };
+    const player = { x: 40, y: HEIGHT / 2, w: 22, h: 22, trail: [] };
+    const cpu    = { x: WIDTH - 110, y: HEIGHT / 2, w: 22, h: 22 };
 
-    const cpu = {
-      x: WIDTH - 110,
-      y: HEIGHT / 2,
-      w: 22,
-      h: 22,
-      color: '#22c55e'
-    };
-
+    // ── Logging ───────────────────────────────────────────────────
     function log(msg, kind = 'sys') {
       const div = document.createElement('div');
       div.className = 'log-entry ' + kind;
@@ -262,12 +256,14 @@
       logBoxEl.scrollTop = logBoxEl.scrollHeight;
     }
 
+    // ── Position helpers ──────────────────────────────────────────
     function resetPositions() {
-      player.x = 40;
-      player.y = HEIGHT / 2;
+      player.x     = 40;
+      player.y     = HEIGHT / 2;
       player.trail = [];
-      cpu.x = WIDTH - 110;
-      cpu.y = HEIGHT / 2;
+      cpu.x        = WIDTH - 110;
+      cpu.y        = HEIGHT / 2;
+      facingLeft   = false;
     }
 
     function newDrive() {
@@ -282,81 +278,74 @@
 
     function resetGame() {
       scorePlayer = 0;
-      scoreCpu = 0;
-      driveCount = 0;
+      scoreCpu    = 0;
+      driveCount  = 0;
       scorePlayerEl.textContent = '0';
-      scoreCpuEl.textContent = '0';
-      driveCountEl.textContent = '0';
+      scoreCpuEl.textContent    = '0';
+      driveCountEl.textContent  = '0';
       logBoxEl.innerHTML = '';
       log('Game reset. First to 21 impresses the Sanders coaching staff.', 'sys');
       newDrive();
     }
 
-    function handleInput() { // separate update step [web:149][web:155]
+    // ── Input ─────────────────────────────────────────────────────
+    function handleInput() {
       if (!inDrive) return;
       let dx = 0, dy = 0;
-      if (keys['ArrowLeft']) dx -= PLAYER_SPEED;
-      if (keys['ArrowRight']) dx += PLAYER_SPEED;
-      if (keys['ArrowUp']) dy -= PLAYER_SPEED;
-      if (keys['ArrowDown']) dy += PLAYER_SPEED;
+      if (keys['ArrowLeft'])  { dx -= PLAYER_SPEED; facingLeft = true;  }
+      if (keys['ArrowRight']) { dx += PLAYER_SPEED; facingLeft = false; }
+      if (keys['ArrowUp'])    dy -= PLAYER_SPEED;
+      if (keys['ArrowDown'])  dy += PLAYER_SPEED;
 
       player.x += dx;
       player.y += dy;
-
-      // Keep inside field
-      player.x = Math.max(0, Math.min(WIDTH - player.w, player.x));
+      player.x = Math.max(0, Math.min(WIDTH  - player.w, player.x));
       player.y = Math.max(0, Math.min(HEIGHT - player.h, player.y));
 
-      // Store a short trail behind the runner
       player.trail.push({ x: player.x + player.w / 2, y: player.y + player.h / 2 });
       if (player.trail.length > 15) player.trail.shift();
     }
 
+    // ── CPU chase ─────────────────────────────────────────────────
     function cpuChase() {
       if (!inDrive) return;
-      const dx = player.x - cpu.x;
-      const dy = player.y - cpu.y;
+      const dx   = player.x - cpu.x;
+      const dy   = player.y - cpu.y;
       const dist = Math.hypot(dx, dy) || 1;
-      const stepX = (dx / dist) * CPU_SPEED;
-      const stepY = (dy / dist) * CPU_SPEED;
-      cpu.x += stepX;
-      cpu.y += stepY;
+      cpu.x += (dx / dist) * CPU_SPEED;
+      cpu.y += (dy / dist) * CPU_SPEED;
     }
 
+    // ── Collisions ────────────────────────────────────────────────
     function checkCollisions() {
       if (!inDrive) return;
 
-      // End zone check
       if (player.x + player.w >= WIDTH - END_ZONE_WIDTH) {
         inDrive = false;
         scorePlayer += 7;
         scorePlayerEl.textContent = scorePlayer;
-        statusMainEl.textContent =
-          'Touchdown Red Barons! Hit New Drive for the next series.';
-        log('Touchdown! Baron follows Trev’s call and hits the right pylon. +7.', 'good');
-
+        statusMainEl.textContent  = 'Touchdown Red Barons! Hit New Drive for the next series.';
+        log('Touchdown! Baron follows Trev\'s call and hits the right pylon. +7.', 'good');
         if (scorePlayer >= 21) {
           log('Coaching clinic: Coach R. Sanders reaches 21 first.', 'good');
           statusMainEl.textContent =
             'Game over. You reached 21. The Sanders twins approve. Hit Reset Game to run it back.';
         }
+        return;
       }
 
-      // CPU tackle (AABB)
       const hit =
         player.x < cpu.x + cpu.w &&
         player.x + player.w > cpu.x &&
         player.y < cpu.y + cpu.h &&
         player.y + player.h > cpu.y;
 
-      if (hit && inDrive) {
+      if (hit) {
         inDrive = false;
         scoreCpu += 7;
-        scoreCpuEl.textContent = scoreCpu;
-        statusMainEl.textContent =
-          'CPU defender blows up the play. Drive over.';
+        scoreCpuEl.textContent   = scoreCpu;
+        statusMainEl.textContent = 'CPU defender blows up the play. Drive over.';
         log('Stuffed in the backfield! Ross is already drawing up adjustments. +7 CPU.', 'bad');
-
         if (scoreCpu >= 21) {
           log('CPU hits 21 first. Back to the film room with Trev & Ross.', 'bad');
           statusMainEl.textContent =
@@ -365,51 +354,38 @@
       }
     }
 
-    function drawField() { // more detailed field layout [web:154][web:157]
-      // Background
+    // ── Draw field ────────────────────────────────────────────────
+    function drawField() {
       ctx.fillStyle = '#0b1120';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      // End zones
       ctx.fillStyle = '#111827';
       ctx.fillRect(0, 0, END_ZONE_WIDTH, HEIGHT);
       ctx.fillRect(WIDTH - END_ZONE_WIDTH, 0, END_ZONE_WIDTH, HEIGHT);
 
-      // Main turf
       ctx.fillStyle = '#065f46';
       ctx.fillRect(END_ZONE_WIDTH, 0, WIDTH - END_ZONE_WIDTH * 2, HEIGHT);
 
-      // Alternating turf stripes
       ctx.fillStyle = 'rgba(16,185,129,0.13)';
-      for (let y = 0; y < HEIGHT; y += 20) {
+      for (let y = 0; y < HEIGHT; y += 20)
         ctx.fillRect(END_ZONE_WIDTH, y, WIDTH - END_ZONE_WIDTH * 2, 10);
-      }
 
-      // Yard lines every 10 yards
       ctx.strokeStyle = '#bbf7d0';
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth   = 1.2;
       for (let i = END_ZONE_WIDTH; i <= WIDTH - END_ZONE_WIDTH; i += 40) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, HEIGHT);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, HEIGHT); ctx.stroke();
       }
 
-      // Hash marks
       ctx.strokeStyle = '#a7f3d0';
-      ctx.lineWidth = 1;
+      ctx.lineWidth   = 1;
       for (let i = END_ZONE_WIDTH + 20; i <= WIDTH - END_ZONE_WIDTH - 20; i += 40) {
-        for (let y of [HEIGHT * 0.25, HEIGHT * 0.75]) {
-          ctx.beginPath();
-          ctx.moveTo(i - 6, y);
-          ctx.lineTo(i + 6, y);
-          ctx.stroke();
+        for (const y of [HEIGHT * 0.25, HEIGHT * 0.75]) {
+          ctx.beginPath(); ctx.moveTo(i - 6, y); ctx.lineTo(i + 6, y); ctx.stroke();
         }
       }
 
-      // Line of scrimmage stripe (for fun)
       ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2;
+      ctx.lineWidth   = 2;
       ctx.setLineDash([6, 6]);
       ctx.beginPath();
       ctx.moveTo(player.x + player.w / 2, 0);
@@ -417,23 +393,21 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Midfield logo text stand‑in
       ctx.fillStyle = 'rgba(15,23,42,0.7)';
       ctx.beginPath();
       ctx.arc(WIDTH / 2, HEIGHT / 2, 38, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#f97316';
-      ctx.font = 'bold 16px system-ui';
-      ctx.textAlign = 'center';
+      ctx.fillStyle    = '#f97316';
+      ctx.font         = 'bold 16px system-ui';
+      ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('RB', WIDTH / 2, HEIGHT / 2);
 
-      // End zone labels
       ctx.fillStyle = '#f87171';
-      ctx.font = 'bold 12px system-ui';
+      ctx.font      = 'bold 12px system-ui';
       ctx.textAlign = 'left';
-      ctx.fillText('RED', 8, HEIGHT / 2 - 8);
+      ctx.fillText('RED',    8, HEIGHT / 2 - 8);
       ctx.fillText('BARONS', 8, HEIGHT / 2 + 8);
 
       ctx.textAlign = 'right';
@@ -441,84 +415,89 @@
       ctx.fillText('CPU', WIDTH - 8, HEIGHT / 2);
     }
 
+    // ── Draw players ──────────────────────────────────────────────
     function drawPlayers() {
-      // Player shadow
+      // ── Shadow under Red Baron ──
       ctx.fillStyle = 'rgba(15,23,42,0.8)';
       ctx.beginPath();
       ctx.ellipse(
         player.x + player.w / 2,
-        player.y + player.h - 2,
-        player.w / 2 + 2,
-        5,
-        0,
-        0,
-        Math.PI * 2
+        player.y + player.h + 4,
+        SPRITE_W / 2,
+        6,
+        0, 0, Math.PI * 2
       );
       ctx.fill();
 
-      // Player trail
+      // ── Trail ──
       for (let i = 0; i < player.trail.length; i++) {
-        const p = player.trail[i];
+        const p     = player.trail[i];
         const alpha = i / player.trail.length;
-        ctx.fillStyle = 'rgba(248,113,113,' + alpha * 0.7 + ')';
+        ctx.fillStyle = `rgba(248,113,113,${alpha * 0.7})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Player body (little jersey)
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.w, player.h);
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(player.x, player.y + player.h * 0.45, player.w, player.h * 0.55);
+      // ── Red Baron sprite (with left/right flip) ──
+      const spriteX = player.x + player.w / 2 - SPRITE_W / 2;
+      const spriteY = player.y + player.h / 2 - SPRITE_H / 2;
 
-      // CPU (helmet + body)
-      ctx.fillStyle = cpu.color;
+      if (baronImg.complete && baronImg.naturalWidth > 0) {
+        ctx.save();
+        if (facingLeft) {
+          // Mirror horizontally around the sprite centre
+          ctx.translate(player.x + player.w / 2, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(baronImg, -SPRITE_W / 2, spriteY, SPRITE_W, SPRITE_H);
+        } else {
+          ctx.drawImage(baronImg, spriteX, spriteY, SPRITE_W, SPRITE_H);
+        }
+        ctx.restore();
+      } else {
+        // Fallback orange square while image loads
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+      }
+
+      // ── CPU defender (unchanged) ──
+      ctx.fillStyle = '#22c55e';
       ctx.fillRect(cpu.x, cpu.y + 6, cpu.w, cpu.h - 6);
       ctx.beginPath();
       ctx.arc(cpu.x + cpu.w / 2, cpu.y + 6, cpu.w / 2, 0, Math.PI * 2);
       ctx.fillStyle = '#22c55e';
       ctx.fill();
 
-      // small face mask line
       ctx.strokeStyle = '#14532d';
-      ctx.lineWidth = 2;
+      ctx.lineWidth   = 2;
       ctx.beginPath();
-      ctx.moveTo(cpu.x + 3, cpu.y + 8);
-      ctx.lineTo(cpu.x + cpu.w - 3, cpu.y + 8);
+      ctx.moveTo(cpu.x + 3,          cpu.y + 8);
+      ctx.lineTo(cpu.x + cpu.w - 3,  cpu.y + 8);
       ctx.stroke();
     }
 
-    function loop() { // main game loop [web:155][web:157]
+    // ── Game loop ─────────────────────────────────────────────────
+    function loop() {
       handleInput();
       cpuChase();
       checkCollisions();
-
       drawField();
       drawPlayers();
-
       requestAnimationFrame(loop);
     }
 
-    // Keyboard input
+    // ── Keyboard ──────────────────────────────────────────────────
     window.addEventListener('keydown', e => {
-      if (e.key === 'r' || e.key === 'R') {
-        newDrive();
-      } else if (e.key === 'g' || e.key === 'G') {
-        resetGame();
-      } else {
-        keys[e.key] = true;
-      }
+      if      (e.key === 'r' || e.key === 'R') newDrive();
+      else if (e.key === 'g' || e.key === 'G') resetGame();
+      else keys[e.key] = true;
     });
-
-    window.addEventListener('keyup', e => {
-      keys[e.key] = false;
-    });
+    window.addEventListener('keyup', e => { keys[e.key] = false; });
 
     btnDrive.addEventListener('click', newDrive);
-    btnGame.addEventListener('click', resetGame);
+    btnGame.addEventListener('click',  resetGame);
 
-    // Start
+    // ── Start ─────────────────────────────────────────────────────
     resetPositions();
     loop();
   </script>
