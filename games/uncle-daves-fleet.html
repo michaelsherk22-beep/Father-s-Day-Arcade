@@ -1,324 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Uncle Dave's Fleet</title>
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<style>
-:root {
---bg:#020617; --panel:#020617; --panel-alt:#020617;
---border:rgba(148,163,184,0.25); --accent:#38bdf8; --accent-soft:#e0f2fe;
---good:#22c55e; --danger:#f97373; --muted:#94a3b8; --text:#e5e7eb;
---sea-top:#0ea5e9; --sea-mid:#0369a1; --sea-deep:#020617;
---ship-body:#020617; --ship-edge:#facc15;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-min-height:100vh;
-background:
-radial-gradient(circle at 10% 0%,#1e293b 0%,transparent 55%),
-radial-gradient(circle at 80% 100%,#0f172a 0%,transparent 55%),
-linear-gradient(180deg,#020617 0%,#020617 100%);
-color:var(--text);font-family:system-ui,-apple-system,sans-serif;
-display:flex;align-items:flex-start;justify-content:center;
-padding:16px 10px 32px;
-}
-#app{width:min(100%,1080px);display:flex;flex-direction:column;gap:16px;}
+  <meta charset="UTF-8" />
+  <title>Uncle Dave's Fleet</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <style>
+    :root {
+      --bg:#020617; --panel:#020617; --panel-alt:#020617;
+      --border:rgba(148,163,184,0.25); --accent:#38bdf8; --accent-soft:#e0f2fe;
+      --good:#22c55e; --danger:#f97373; --muted:#94a3b8; --text:#e5e7eb;
+      --sea-top:#0ea5e9; --sea-mid:#0369a1; --sea-deep:#020617;
+      --ship-body:#020617; --ship-edge:#facc15;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 10% 0%,#1e293b 0%,transparent 55%),
+        radial-gradient(circle at 80% 100%,#0f172a 0%,transparent 55%),
+        linear-gradient(180deg,#020617 0%,#020617 100%);
+      color:var(--text);font-family:system-ui,-apple-system,sans-serif;
+      display:flex;align-items:flex-start;justify-content:center;
+      padding:16px 10px 32px;
+    }
+    #app{width:min(100%,1080px);display:flex;flex-direction:column;gap:16px;}
 
-header{
-display:flex;align-items:center;justify-content:space-between;gap:12px;
-padding:12px 16px;
-background:radial-gradient(circle at 0 0,#082f49 0%,#020617 55%);
-border-radius:18px;border:1px solid var(--border);flex-wrap:wrap;
-box-shadow:0 18px 40px rgba(0,0,0,0.8);
-}
-.hdr-left{display:flex;gap:14px;align-items:center;}
-.avatar{
-width:88px;height:88px;border-radius:50%;overflow:hidden;flex-shrink:0;
-border:2px solid var(--accent);
-box-shadow:0 0 18px rgba(56,189,248,0.6);
-background:#0ea5e9;
-}
-.avatar img{width:100%;height:100%;object-fit:cover;}
-.title-block{display:flex;flex-direction:column;gap:3px;}
-.title{
-font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:800;
-text-transform:uppercase;letter-spacing:0.14em;
-background:linear-gradient(135deg,#38bdf8,#e0f2fe,#facc15);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.subtitle{font-size:0.86rem;color:var(--muted);}
-.hdr-right{
-display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:1;
-min-width:190px;
-}
-.badge{
-font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;
-padding:4px 10px;border-radius:999px;
-border:1px solid rgba(148,163,184,0.7);color:var(--accent-soft);
-background:rgba(15,23,42,0.9);
-}
-.status-chip{
-font-size:0.78rem;color:var(--accent-soft);
-}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 16px;
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 55%);
+      border-radius:18px;border:1px solid var(--border);flex-wrap:wrap;
+      box-shadow:0 18px 40px rgba(0,0,0,0.8);
+    }
+    .hdr-left{display:flex;gap:14px;align-items:center;}
+    .avatar{
+      width:88px;height:88px;border-radius:50%;overflow:hidden;flex-shrink:0;
+      border:2px solid var(--accent);
+      box-shadow:0 0 18px rgba(56,189,248,0.6);
+      background:#0ea5e9;
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;}
+    .title-block{display:flex;flex-direction:column;gap:3px;}
+    .title{
+      font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:800;
+      text-transform:uppercase;letter-spacing:0.14em;
+      background:linear-gradient(135deg,#38bdf8,#e0f2fe,#facc15);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .subtitle{font-size:0.86rem;color:var(--muted);}
+    .hdr-right{
+      display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:1;
+      min-width:190px;
+    }
+    .badge{
+      font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;
+      padding:4px 10px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.7);color:var(--accent-soft);
+      background:rgba(15,23,42,0.9);
+    }
+    .status-chip{
+      font-size:0.78rem;color:var(--accent-soft);
+    }
 
-main{
-display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,0.9fr);gap:14px;
-}
-@media(max-width:860px){main{grid-template-columns:1fr;}}
+    main{
+      display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,0.9fr);gap:14px;
+    }
+    @media(max-width:860px){main{grid-template-columns:1fr;}}
 
-.panel{
-background:radial-gradient(circle at 50% 0%,#020617 0%,#020617 70%);
-border-radius:16px;border:1px solid rgba(15,23,42,0.9);
-padding:12px 12px 14px;
-box-shadow:0 14px 32px rgba(0,0,0,0.85);
-}
-.panel-header{
-display:flex;justify-content:space-between;align-items:center;gap:8px;
-padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px;
-}
-.panel-title{
-font-size:0.78rem;text-transform:uppercase;letter-spacing:0.14em;
-color:var(--accent-soft);
-}
-.panel-sub{font-size:0.78rem;color:var(--muted);}
+    .panel{
+      background:radial-gradient(circle at 50% 0%,#020617 0%,#020617 70%);
+      border-radius:16px;border:1px solid rgba(15,23,42,0.9);
+      padding:12px 12px 14px;
+      box-shadow:0 14px 32px rgba(0,0,0,0.85);
+    }
+    .panel-header{
+      display:flex;justify-content:space-between;align-items:center;gap:8px;
+      padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px;
+    }
+    .panel-title{
+      font-size:0.78rem;text-transform:uppercase;letter-spacing:0.14em;
+      color:var(--accent-soft);
+    }
+    .panel-sub{font-size:0.78rem;color:var(--muted);}
 
-.grids-wrap{
-display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
-}
-@media(max-width:720px){.grids-wrap{grid-template-columns:1fr;}}
+    .grids-wrap{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+    }
+    @media(max-width:720px){.grids-wrap{grid-template-columns:1fr;}}
 
-.grid-block{
-background:radial-gradient(circle at 50% 0%,#082f49 0%,#020617 70%);
-border-radius:14px;border:1px solid rgba(15,23,42,0.9);
-padding:8px 8px 10px;
-}
-.grid-title{
-font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;
-color:var(--accent-soft);margin-bottom:4px;
-}
-.grid-sub{font-size:0.72rem;color:var(--muted);margin-bottom:4px;}
+    .grid-block{
+      background:radial-gradient(circle at 50% 0%,#082f49 0%,#020617 70%);
+      border-radius:14px;border:1px solid rgba(15,23,42,0.9);
+      padding:8px 8px 10px;
+    }
+    .grid-title{
+      font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;
+      color:var(--accent-soft);margin-bottom:4px;
+    }
+    .grid-sub{font-size:0.72rem;color:var(--muted);margin-bottom:4px;}
 
-.board{
-display:grid;
-grid-template-columns:18px repeat(10,1fr);
-grid-auto-rows:18px repeat(10,1fr);
-gap:1px;
-padding:5px;
-border-radius:12px;
-background:
-radial-gradient(circle at 15% 0%,rgba(56,189,248,0.65) 0%,transparent 55%),
-radial-gradient(circle at 85% 100%,rgba(8,47,73,0.9) 0%,transparent 55%),
-linear-gradient(180deg,#020617 0%,#020617 100%);
-box-shadow:
-0 0 0 1px rgba(15,23,42,1),
-0 14px 30px rgba(15,23,42,0.95);
-}
-.label-cell{
-font-size:0.68rem;color:#64748b;
-display:flex;align-items:center;justify-content:center;
-}
+    .board{
+      display:grid;
+      grid-template-columns:18px repeat(10,1fr);
+      grid-auto-rows:18px repeat(10,1fr);
+      gap:1px;
+      padding:5px;
+      border-radius:12px;
+      background:
+        radial-gradient(circle at 15% 0%,rgba(56,189,248,0.65) 0%,transparent 55%),
+        radial-gradient(circle at 85% 100%,rgba(8,47,73,0.9) 0%,transparent 55%),
+        linear-gradient(180deg,#020617 0%,#020617 100%);
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,1),
+        0 14px 30px rgba(15,23,42,0.95);
+    }
+    .label-cell{
+      font-size:0.68rem;color:#64748b;
+      display:flex;align-items:center;justify-content:center;
+    }
 
-.cell{
-width:100%;aspect-ratio:1/1;cursor:pointer;
-background:
-radial-gradient(circle at 20% 0%,rgba(125,211,252,0.8) 0%,transparent 45%),
-radial-gradient(circle at 80% 100%,rgba(30,64,175,0.7) 0%,transparent 40%),
-linear-gradient(135deg,#0b1120,#020617 70%);
-border-radius:6px;
-position:relative;
-overflow:hidden;
-transition:transform 0.09s,box-shadow 0.09s,background-position 0.2s;
-}
-.cell::before{
-content:"";
-position:absolute;inset:-40%;
-background:
-radial-gradient(circle at 20% 20%,rgba(148,163,184,0.12) 0%,transparent 45%),
-radial-gradient(circle at 80% 80%,rgba(148,163,184,0.12) 0%,transparent 45%);
-opacity:0.55;
-mix-blend-mode:screen;
-}
-.cell:hover{
-transform:translateY(-2px);
-box-shadow:0 6px 16px rgba(15,23,42,0.95);
-background-position:0 -4px;
-}
-.cell.player{
-background:
-linear-gradient(135deg,#020617,#020617 65%),
-radial-gradient(circle at 0 0,rgba(148,163,184,0.15) 0%,transparent 55%);
-}
+    .cell{
+      width:100%;aspect-ratio:1/1;cursor:pointer;
+      background:
+        radial-gradient(circle at 20% 0%,rgba(125,211,252,0.8) 0%,transparent 45%),
+        radial-gradient(circle at 80% 100%,rgba(30,64,175,0.7) 0%,transparent 40%),
+        linear-gradient(135deg,#0b1120,#020617 70%);
+      border-radius:6px;
+      position:relative;
+      overflow:hidden;
+      transition:transform 0.09s,box-shadow 0.09s,background-position 0.2s;
+    }
+    .cell::before{
+      content:"";
+      position:absolute;inset:-40%;
+      background:
+        radial-gradient(circle at 20% 20%,rgba(148,163,184,0.12) 0%,transparent 45%),
+        radial-gradient(circle at 80% 80%,rgba(148,163,184,0.12) 0%,transparent 45%);
+      opacity:0.55;
+      mix-blend-mode:screen;
+    }
+    .cell:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 16px rgba(15,23,42,0.95);
+      background-position:0 -4px;
+    }
+    .cell.player{
+      background:
+        linear-gradient(135deg,#020617,#020617 65%),
+        radial-gradient(circle at 0 0,rgba(148,163,184,0.15) 0%,transparent 55%);
+    }
 
-.cell.ship{
-background:
-radial-gradient(circle at 50% 0%,rgba(148,163,184,0.24) 0%,transparent 55%),
-linear-gradient(135deg,#020617,#020617 70%);
-}
-.cell.ship::after{
-content:"";
-position:absolute;
-width:70%;
-height:46%;
-left:50%;top:50%;
-transform:translate(-50%,-50%);
-border-radius:50% 50% 45% 45% / 55% 55% 40% 40%;
-background:
-radial-gradient(circle at 50% 0%,rgba(248,250,252,0.9) 0%,transparent 55%),
-linear-gradient(180deg,#020617 0%,#020617 55%,#111827 100%);
-box-shadow:0 0 0 2px rgba(15,23,42,0.9),0 0 10px rgba(15,23,42,0.9);
-}
-.cell.ship::before{
-content:"";
-position:absolute;
-width:22%;height:32%;
-left:50%;top:36%;
-transform:translateX(-50%);
-border-radius:4px;
-background:linear-gradient(180deg,#facc15 0%,#eab308 40%,#78350f 100%);
-box-shadow:0 0 6px rgba(250,204,21,0.7);
-z-index:2;
-}
+    .cell.ship{
+      background:
+        radial-gradient(circle at 50% 0%,rgba(148,163,184,0.24) 0%,transparent 55%),
+        linear-gradient(135deg,#020617,#020617 70%);
+    }
+    .cell.ship::after{
+      content:"";
+      position:absolute;
+      width:70%;
+      height:46%;
+      left:50%;top:50%;
+      transform:translate(-50%,-50%);
+      border-radius:50% 50% 45% 45% / 55% 55% 40% 40%;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(248,250,252,0.9) 0%,transparent 55%),
+        linear-gradient(180deg,#020617 0%,#020617 55%,#111827 100%);
+      box-shadow:0 0 0 2px rgba(15,23,42,0.9),0 0 10px rgba(15,23,42,0.9);
+    }
+    .cell.ship::before{
+      content:"";
+      position:absolute;
+      width:22%;height:32%;
+      left:50%;top:36%;
+      transform:translateX(-50%);
+      border-radius:4px;
+      background:linear-gradient(180deg,#facc15 0%,#eab308 40%,#78350f 100%);
+      box-shadow:0 0 6px rgba(250,204,21,0.7);
+      z-index:2;
+    }
 
-.cell.hit::after{
-content:"";
-position:absolute;inset:18%;
-border-radius:50%;
-background:radial-gradient(circle,#fee2e2 0%,#ef4444 40%,#7f1d1d 80%);
-box-shadow:0 0 10px rgba(248,113,113,0.9);
-}
-.cell.hit.ship::after{
-inset:16%;
-}
-.cell.miss::after{
-content:"";
-position:absolute;inset:26%;
-border-radius:50%;
-border:2px solid rgba(148,163,184,0.9);
-box-shadow:0 0 6px rgba(148,163,184,0.8);
-}
-.cell.disabled{pointer-events:none;opacity:0.72;}
+    .cell.hit::after{
+      content:"";
+      position:absolute;inset:18%;
+      border-radius:50%;
+      background:radial-gradient(circle,#fee2e2 0%,#ef4444 40%,#7f1d1d 80%);
+      box-shadow:0 0 10px rgba(248,113,113,0.9);
+    }
+    .cell.hit.ship::after{
+      inset:16%;
+    }
+    .cell.miss::after{
+      content:"";
+      position:absolute;inset:26%;
+      border-radius:50%;
+      border:2px solid rgba(148,163,184,0.9);
+      box-shadow:0 0 6px rgba(148,163,184,0.8);
+    }
+    .cell.disabled{pointer-events:none;opacity:0.72;}
 
-.info-row{font-size:0.8rem;color:var(--muted);margin-top:6px;}
+    .info-row{font-size:0.8rem;color:var(--muted);margin-top:6px;}
 
-.btn{
-border-radius:999px;border:1px solid var(--border);padding:7px 14px;
-font-size:0.75rem;font-weight:700;text-transform:uppercase;
-letter-spacing:0.08em;cursor:pointer;
-background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
-color:var(--text);
-display:inline-flex;align-items:center;gap:6px;
-transition:all 0.12s;margin-right:6px;margin-top:6px;
-}
-.btn:hover:not(:disabled){
-transform:translateY(-1px);
-box-shadow:0 4px 12px rgba(0,0,0,0.9);
-}
-.btn:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
-.btn.primary{
-background:radial-gradient(circle at 0 0,#38bdf8 0%,#0369a1 45%,#020617 75%);
-color:#020617;border-color:#38bdf8;
-}
-.btn.success{
-background:radial-gradient(circle at 0 0,#22c55e 0%,#15803d 45%,#020617 75%);
-color:#020617;border-color:#22c55e;
-}
+    .btn{
+      border-radius:999px;border:1px solid var(--border);padding:7px 14px;
+      font-size:0.75rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.08em;cursor:pointer;
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
+      color:var(--text);
+      display:inline-flex;align-items:center;gap:6px;
+      transition:all 0.12s;margin-right:6px;margin-top:6px;
+    }
+    .btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 4px 12px rgba(0,0,0,0.9);
+    }
+    .btn:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+    .btn.primary{
+      background:radial-gradient(circle at 0 0,#38bdf8 0%,#0369a1 45%,#020617 75%);
+      color:#020617;border-color:#38bdf8;
+    }
+    .btn.success{
+      background:radial-gradient(circle at 0 0,#22c55e 0%,#15803d 45%,#020617 75%);
+      color:#020617;border-color:#22c55e;
+    }
 
-.log-panel{
-background:radial-gradient(circle at 0 0,#020617 0%,#020617 85%);
-border-radius:12px;border:1px solid rgba(30,64,175,0.6);
-padding:8px 10px;max-height:220px;overflow-y:auto;font-size:0.8rem;
-margin-top:8px;
-}
-.log-entry{margin-bottom:4px;color:var(--accent-soft);}
-.log-entry.ai{color:#a5b4fc;}
-.log-entry.system{color:var(--muted);font-style:italic;}
+    .log-panel{
+      background:radial-gradient(circle at 0 0,#020617 0%,#020617 85%);
+      border-radius:12px;border:1px solid rgba(30,64,175,0.6);
+      padding:8px 10px;max-height:220px;overflow-y:auto;font-size:0.8rem;
+      margin-top:8px;
+    }
+    .log-entry{margin-bottom:4px;color:var(--accent-soft);}
+    .log-entry.ai{color:#a5b4fc;}
+    .log-entry.system{color:var(--muted);font-style:italic;}
 
-.result-banner{
-margin-top:10px;font-size:0.9rem;font-weight:700;text-align:center;
-padding:8px 10px;border-radius:12px;
-border:1px solid rgba(148,163,184,0.4);
-background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
-display:none;
-}
-.result-banner.win{
-display:block;color:var(--good);
-border-color:rgba(34,197,94,0.7);box-shadow:0 0 14px rgba(22,163,74,0.7);
-}
-.result-banner.lose{
-display:block;color:var(--danger);
-border-color:rgba(248,113,113,0.7);box-shadow:0 0 14px rgba(248,113,113,0.6);
-}
-.result-banner.info{
-display:block;color:var(--accent-soft);
-border-color:rgba(56,189,248,0.7);box-shadow:0 0 14px rgba(56,189,248,0.6);
-}
-</style>
+    .result-banner{
+      margin-top:10px;font-size:0.9rem;font-weight:700;text-align:center;
+      padding:8px 10px;border-radius:12px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:radial-gradient(circle at 0 0,#082f49 0%,#020617 70%);
+      display:none;
+    }
+    .result-banner.win{
+      display:block;color:var(--good);
+      border-color:rgba(34,197,94,0.7);box-shadow:0 0 14px rgba(22,163,74,0.7);
+    }
+    .result-banner.lose{
+      display:block;color:var(--danger);
+      border-color:rgba(248,113,113,0.7);box-shadow:0 0 14px rgba(248,113,113,0.6);
+    }
+    .result-banner.info{
+      display:block;color:var(--accent-soft);
+      border-color:rgba(56,189,248,0.7);box-shadow:0 0 14px rgba(56,189,248,0.6);
+    }
+  </style>
 </head>
 <body>
 <div id="app">
 
-<header>
-<div class="hdr-left">
-<div class="avatar"><img src="../images/Uncle Dave.png" alt="Uncle Dave"></div>
-<div class="title-block">
-<div class="title">Uncle Dave's Fleet</div>
-<div class="subtitle">Command your ships and sink the enemy before they sink you.</div>
-</div>
-</div>
-<div class="hdr-right">
-<div class="badge">Lieutenant Commander · Fleet Tactics Trainer</div>
-<div class="status-chip" id="topStatus">Phase: Deploy your ships</div>
-</div>
-</header>
+  <header>
+    <div class="hdr-left">
+      <div class="avatar"><img src="../images/Uncle Dave.png" alt="Uncle Dave"></div>
+      <div class="title-block">
+        <div class="title">Uncle Dave's Fleet</div>
+        <div class="subtitle">Command your ships and sink the enemy before they sink you.</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="badge">Lieutenant Commander · Fleet Tactics Trainer</div>
+      <div class="status-chip" id="topStatus">Phase: Deploy your ships</div>
+    </div>
+  </header>
 
-</main>
+  <main>
+    <!-- Battlefield with grids -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Battlefield</div>
+        <div class="panel-sub" id="turnInfo">Your turn: place the Carrier (5)</div>
+      </div>
 
-<section class="panel" style="margin-top:10px;">
-  <div class="panel-header">
-    <div class="panel-title">Captain Uncle Dave</div>
-    <div class="panel-sub">Your fleet commander.</div>
-  </div>
-  <div style="
-    width:100%;
-    max-width:600px;
-    margin:0 auto;
-    border-radius:16px;
-    overflow:hidden;
-    border:1px solid rgba(148,163,184,0.35);
-    background:#020617;
-    box-shadow:0 10px 28px rgba(0,0,0,0.9);
-  ">
-    <img src="../images/Uncle Dave.png"
-         alt="Uncle Dave"
-         style="display:block;width:100%;height:auto;">
-  </div>
-</section>
+      <div class="grids-wrap">
+        <div class="grid-block">
+          <div class="grid-title">Your Ocean</div>
+          <div class="grid-sub" id="playerGridSub">Place all 5 ships to begin.</div>
+          <div class="board" id="playerBoard"></div>
+          <div class="info-row">
+            Ship placing: <span id="shipPlacingText">Carrier (size 5)</span> ·
+            Orientation: <span id="orientationText">Horizontal</span>
+          </div>
+        </div>
+        <div class="grid-block">
+          <div class="grid-title">Enemy Waters</div>
+          <div class="grid-sub" id="enemyGridSub">Locked until your fleet is deployed.</div>
+          <div class="board" id="enemyBoard"></div>
+          <div class="info-row" id="shotHint">Click a square to fire once battle begins.</div>
+        </div>
+      </div>
+    </section>
 
-<aside class="panel">
-<div class="panel-header">
-<div class="panel-title">Command Panel</div>
-<div class="panel-sub">Special orders & battle log.</div>
-</div>
+    <!-- Command panel -->
+    <aside class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Command Panel</div>
+        <div class="panel-sub">Special orders & battle log.</div>
+      </div>
 
-<button class="btn" id="rotateBtn">Rotate Ship</button>
-<button class="btn primary" id="startBtn" disabled>Start Battle</button>
-<button class="btn success" id="resetBtn">Reset Game</button>
+      <button class="btn" id="rotateBtn">Rotate Ship</button>
+      <button class="btn primary" id="startBtn" disabled>Start Battle</button>
+      <button class="btn success" id="resetBtn">Reset Game</button>
 
-<div class="log-panel" id="logPanel" style="margin-top:8px;"></div>
-<div class="result-banner" id="resultBanner"></div>
-</aside>
-</main>
+      <div class="log-panel" id="logPanel" style="margin-top:8px;"></div>
+      <div class="result-banner" id="resultBanner"></div>
+    </aside>
+  </main>
+
+  <!-- Full-width Uncle Dave image below -->
+  <section class="panel" style="margin-top:10px;">
+    <div class="panel-header">
+      <div class="panel-title">Captain Uncle Dave</div>
+      <div class="panel-sub">Your fleet commander.</div>
+    </div>
+    <div style="
+      width:100%;
+      max-width:600px;
+      margin:0 auto;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(148,163,184,0.35);
+      background:#020617;
+      box-shadow:0 10px 28px rgba(0,0,0,0.9);
+    ">
+      <img src="../images/Uncle Dave.png"
+           alt="Uncle Dave"
+           style="display:block;width:100%;height:auto;">
+    </div>
+  </section>
+
 </div>
 
 <script>
 const GRID_SIZE = 10;
 const SHIPS_DEF = [
-{ name: "Carrier", size: 5 },
-{ name: "Battleship", size: 4 },
-{ name: "Cruiser", size: 3 },
-{ name: "Submarine", size: 3 },
-{ name: "Destroyer", size: 2 }
+  { name: "Carrier", size: 5 },
+  { name: "Battleship", size: 4 },
+  { name: "Cruiser", size: 3 },
+  { name: "Submarine", size: 3 },
+  { name: "Destroyer", size: 2 }
 ];
 
 const Phase = { DEPLOY: "deploy", BATTLE: "battle", GAME_OVER: "game_over" };
@@ -350,299 +378,296 @@ let resetBtn = document.getElementById("resetBtn");
 
 // Utility
 function createGrid() {
-return Array.from({ length: GRID_SIZE }, () =>
-Array.from({ length: GRID_SIZE }, () => ({
-shipId: null,
-hit: false,
-miss: false
-}))
-);
+  return Array.from({ length: GRID_SIZE }, () =>
+    Array.from({ length: GRID_SIZE }, () => ({
+      shipId: null,
+      hit: false,
+      miss: false
+    }))
+  );
 }
 function inBounds(r,c){return r>=0 && r<GRID_SIZE && c>=0 && c<GRID_SIZE;}
 
 function log(msg, type="system") {
-const div = document.createElement("div");
-div.className = "log-entry " + type;
-div.textContent = msg;
-logPanel.appendChild(div);
-logPanel.scrollTop = logPanel.scrollHeight;
+  const div = document.createElement("div");
+  div.className = "log-entry " + type;
+  div.textContent = msg;
+  logPanel.appendChild(div);
+  logPanel.scrollTop = logPanel.scrollHeight;
 }
 
 // Placement helpers
 function canPlaceShip(grid, size, row, col, horizontal) {
-for (let i=0;i<size;i++){
-const r = row + (horizontal?0:i);
-const c = col + (horizontal?i:0);
-if (!inBounds(r,c) || grid[r][c].shipId !== null) return false;
-}
-return true;
+  for (let i=0;i<size;i++){
+    const r = row + (horizontal?0:i);
+    const c = col + (horizontal?i:0);
+    if (!inBounds(r,c) || grid[r][c].shipId !== null) return false;
+  }
+  return true;
 }
 function placeShip(grid, shipId, size, row, col, horizontal) {
-const cells = [];
-for (let i=0;i<size;i++){
-const r = row + (horizontal?0:i);
-const c = col + (horizontal?i:0);
-grid[r][c].shipId = shipId;
-cells.push({ r,c, hit:false });
-}
-return cells;
+  const cells = [];
+  for (let i=0;i<size;i++){
+    const r = row + (horizontal?0:i);
+    const c = col + (horizontal?i:0);
+    grid[r][c].shipId = shipId;
+    cells.push({ r,c, hit:false });
+  }
+  return cells;
 }
 
 // Build boards
 function buildBoards() {
-playerBoardEl.innerHTML = "";
-enemyBoardEl.innerHTML = "";
+  playerBoardEl.innerHTML = "";
+  enemyBoardEl.innerHTML = "";
 
-// Build labels + cells (11x11 including labels)
-const buildBoard = (rootEl, isPlayer) => {
-for (let r=-1; r<GRID_SIZE; r++){
-for (let c=-1; c<GRID_SIZE; c++){
-if (r === -1 && c === -1) {
-const lbl = document.createElement("div");
-lbl.className = "label-cell";
-rootEl.appendChild(lbl);
-} else if (r === -1) {
-const lbl = document.createElement("div");
-lbl.className = "label-cell";
-lbl.textContent = String.fromCharCode(65 + c);
-rootEl.appendChild(lbl);
-} else if (c === -1) {
-const lbl = document.createElement("div");
-lbl.className = "label-cell";
-lbl.textContent = (r+1);
-rootEl.appendChild(lbl);
-} else {
-const cell = document.createElement("div");
-cell.className = "cell" + (isPlayer ? " player" : "");
-cell.dataset.row = r;
-cell.dataset.col = c;
-if (isPlayer) {
-cell.addEventListener("click", onPlayerGridClick);
-} else {
-cell.addEventListener("click", onEnemyGridClick);
-}
-rootEl.appendChild(cell);
-}
-}
-}
-};
+  const buildBoard = (rootEl, isPlayer) => {
+    for (let r=-1; r<GRID_SIZE; r++){
+      for (let c=-1; c<GRID_SIZE; c++){
+        if (r === -1 && c === -1) {
+          const lbl = document.createElement("div");
+          lbl.className = "label-cell";
+          rootEl.appendChild(lbl);
+        } else if (r === -1) {
+          const lbl = document.createElement("div");
+          lbl.className = "label-cell";
+          lbl.textContent = String.fromCharCode(65 + c);
+          rootEl.appendChild(lbl);
+        } else if (c === -1) {
+          const lbl = document.createElement("div");
+          lbl.className = "label-cell";
+          lbl.textContent = (r+1);
+          rootEl.appendChild(lbl);
+        } else {
+          const cell = document.createElement("div");
+          cell.className = "cell" + (isPlayer ? " player" : "");
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          if (isPlayer) {
+            cell.addEventListener("click", onPlayerGridClick);
+          } else {
+            cell.addEventListener("click", onEnemyGridClick);
+          }
+          rootEl.appendChild(cell);
+        }
+      }
+    }
+  };
 
-buildBoard(playerBoardEl, true);
-buildBoard(enemyBoardEl, false);
-redrawBoards();
+  buildBoard(playerBoardEl, true);
+  buildBoard(enemyBoardEl, false);
+  redrawBoards();
 }
 
 function redrawBoards() {
-// Player
-playerGrid.forEach((row,r)=>{
-row.forEach((cell,c)=>{
-const q = playerBoardEl.querySelector(`.cell.player[data-row="${r}"][data-col="${c}"]`);
-if (!q) return;
-q.classList.remove("ship","hit","miss");
-if (cell.shipId !== null) q.classList.add("ship");
-if (cell.hit) q.classList.add("hit");
-if (cell.miss) q.classList.add("miss");
-if (phase !== Phase.DEPLOY) q.classList.add("disabled");
-else q.classList.remove("disabled");
-});
-});
-// Enemy
-enemyGrid.forEach((row,r)=>{
-row.forEach((cell,c)=>{
-const q = enemyBoardEl.querySelector(`.cell:not(.player)[data-row="${r}"][data-col="${c}"]`);
-if (!q) return;
-q.classList.remove("ship","hit","miss","disabled");
-// never show enemy ships until hit
-if (cell.hit) q.classList.add("hit");
-if (cell.miss) q.classList.add("miss");
-if (phase !== Phase.BATTLE) q.classList.add("disabled");
-});
-});
+  // Player
+  playerGrid.forEach((row,r)=>{
+    row.forEach((cell,c)=>{
+      const q = playerBoardEl.querySelector(`.cell.player[data-row="${r}"][data-col="${c}"]`);
+      if (!q) return;
+      q.classList.remove("ship","hit","miss");
+      if (cell.shipId !== null) q.classList.add("ship");
+      if (cell.hit) q.classList.add("hit");
+      if (cell.miss) q.classList.add("miss");
+      if (phase !== Phase.DEPLOY) q.classList.add("disabled");
+      else q.classList.remove("disabled");
+    });
+  });
+  // Enemy
+  enemyGrid.forEach((row,r)=>{
+    row.forEach((cell,c)=>{
+      const q = enemyBoardEl.querySelector(`.cell:not(.player)[data-row="${r}"][data-col="${c}"]`);
+      if (!q) return;
+      q.classList.remove("ship","hit","miss","disabled");
+      if (cell.hit) q.classList.add("hit");
+      if (cell.miss) q.classList.add("miss");
+      if (phase !== Phase.BATTLE) q.classList.add("disabled");
+    });
+  });
 }
 
 // Player placement click
 function onPlayerGridClick(e){
-if (phase !== Phase.DEPLOY) return;
-const r = parseInt(e.currentTarget.dataset.row,10);
-const c = parseInt(e.currentTarget.dataset.col,10);
-const def = SHIPS_DEF[currentShipIndex];
-if (!def) return;
+  if (phase !== Phase.DEPLOY) return;
+  const r = parseInt(e.currentTarget.dataset.row,10);
+  const c = parseInt(e.currentTarget.dataset.col,10);
+  const def = SHIPS_DEF[currentShipIndex];
+  if (!def) return;
 
-if (!canPlaceShip(playerGrid, def.size, r, c, horizontal)) {
-log("Cannot place " + def.name + " there.", "system");
-return;
-}
-const shipId = playerShips.length;
-const cells = placeShip(playerGrid, shipId, def.size, r, c, horizontal);
-playerShips.push({ id:shipId, name:def.name, cells, sunk:false });
+  if (!canPlaceShip(playerGrid, def.size, r, c, horizontal)) {
+    log("Cannot place " + def.name + " there.", "system");
+    return;
+  }
+  const shipId = playerShips.length;
+  const cells = placeShip(playerGrid, shipId, def.size, r, c, horizontal);
+  playerShips.push({ id:shipId, name:def.name, cells, sunk:false });
 
-log("Placed your " + def.name + ".", "system");
+  log("Placed your " + def.name + ".", "system");
 
-currentShipIndex++;
-if (currentShipIndex < SHIPS_DEF.length) {
-const next = SHIPS_DEF[currentShipIndex];
-shipPlacingText.textContent = `${next.name} (size ${next.size})`;
-turnInfo.textContent = `Place the ${next.name} (${next.size})`;
-} else {
-shipPlacingText.textContent = "All ships placed";
-turnInfo.textContent = "Fleet ready. Hit Start Battle.";
-playerGridSub.textContent = "Fleet deployed. Hold your line!";
-startBtn.disabled = false;
-}
-redrawBoards();
+  currentShipIndex++;
+  if (currentShipIndex < SHIPS_DEF.length) {
+    const next = SHIPS_DEF[currentShipIndex];
+    shipPlacingText.textContent = `${next.name} (size ${next.size})`;
+    turnInfo.textContent = `Place the ${next.name} (${next.size})`;
+  } else {
+    shipPlacingText.textContent = "All ships placed";
+    turnInfo.textContent = "Fleet ready. Hit Start Battle.";
+    playerGridSub.textContent = "Fleet deployed. Hold your line!";
+    startBtn.disabled = false;
+  }
+  redrawBoards();
 }
 
 // Enemy grid click (firing)
 function onEnemyGridClick(e){
-if (phase !== Phase.BATTLE) return;
-const r = parseInt(e.currentTarget.dataset.row,10);
-const c = parseInt(e.currentTarget.dataset.col,10);
-const cell = enemyGrid[r][c];
-if (cell.hit || cell.miss) return; // already fired
+  if (phase !== Phase.BATTLE) return;
+  const r = parseInt(e.currentTarget.dataset.row,10);
+  const c = parseInt(e.currentTarget.dataset.col,10);
+  const cell = enemyGrid[r][c];
+  if (cell.hit || cell.miss) return;
 
-resolveShot(true, r, c);
+  resolveShot(true, r, c);
 }
 
 // Shot resolution
 function resolveShot(isPlayer, r, c){
-const targetGrid = isPlayer ? enemyGrid : playerGrid;
-const targetShips = isPlayer ? enemyShips : playerShips;
-const label = String.fromCharCode(65 + c) + (r+1);
+  const targetGrid = isPlayer ? enemyGrid : playerGrid;
+  const targetShips = isPlayer ? enemyShips : playerShips;
+  const label = String.fromCharCode(65 + c) + (r+1);
 
-const cell = targetGrid[r][c];
-if (cell.shipId !== null) {
-cell.hit = true;
-log((isPlayer ? "You" : "Enemy") + " hit at " + label + "!", isPlayer ? "log-entry" : "ai");
+  const cell = targetGrid[r][c];
+  if (cell.shipId !== null) {
+    cell.hit = true;
+    log((isPlayer ? "You" : "Enemy") + " hit at " + label + "!", isPlayer ? "log-entry" : "ai");
 
-const ship = targetShips.find(s => s.id === cell.shipId);
-const allHit = ship.cells.every(cel => targetGrid[cel.r][cel.c].hit);
-if (allHit && !ship.sunk) {
-ship.sunk = true;
-log((isPlayer ? "You" : "Enemy") + " sank the " + ship.name + "!", isPlayer ? "log-entry" : "ai");
-}
-} else {
-cell.miss = true;
-log((isPlayer ? "You" : "Enemy") + " missed at " + label + ".", isPlayer ? "log-entry" : "ai");
-}
+    const ship = targetShips.find(s => s.id === cell.shipId);
+    const allHit = ship.cells.every(cel => targetGrid[cel.r][cel.c].hit);
+    if (allHit && !ship.sunk) {
+      ship.sunk = true;
+      log((isPlayer ? "You" : "Enemy") + " sank the " + ship.name + "!", isPlayer ? "log-entry" : "ai");
+    }
+  } else {
+    cell.miss = true;
+    log((isPlayer ? "You" : "Enemy") + " missed at " + label + ".", isPlayer ? "log-entry" : "ai");
+  }
 
-redrawBoards();
-checkWinState();
-if (phase !== Phase.BATTLE) return;
+  redrawBoards();
+  checkWinState();
+  if (phase !== Phase.BATTLE) return;
 
-if (isPlayer) {
-// Enemy responds after short delay
-topStatus.textContent = "Enemy is firing...";
-enemyGridSub.textContent = "Enemy turn...";
-setTimeout(enemyTurn, 700);
-} else {
-topStatus.textContent = "Your turn to fire.";
-enemyGridSub.textContent = "Click a square in enemy waters to fire.";
-}
+  if (isPlayer) {
+    topStatus.textContent = "Enemy is firing...";
+    enemyGridSub.textContent = "Enemy turn...";
+    setTimeout(enemyTurn, 700);
+  } else {
+    topStatus.textContent = "Your turn to fire.";
+    enemyGridSub.textContent = "Click a square in enemy waters to fire.";
+  }
 }
 
 function checkWinState() {
-const allEnemySunk = enemyShips.every(s => s.sunk);
-const allPlayerSunk = playerShips.every(s => s.sunk);
+  const allEnemySunk = enemyShips.every(s => s.sunk);
+  const allPlayerSunk = playerShips.every(s => s.sunk);
 
-if (allEnemySunk || allPlayerSunk) {
-phase = Phase.GAME_OVER;
-resultBanner.style.display = "block";
-if (allEnemySunk && !allPlayerSunk) {
-resultBanner.className = "result-banner win";
-resultBanner.textContent = "Outstanding! The Navy would be proud!";
-log("Victory! Uncle Dave salutes you.", "system");
-} else if (!allEnemySunk && allPlayerSunk) {
-resultBanner.className = "result-banner lose";
-resultBanner.textContent = "Back to training, recruit. We don't lose at sea!";
-log("Defeat. Learn from this mission and try again.", "system");
-} else {
-resultBanner.className = "result-banner info";
-resultBanner.textContent = "Both fleets are wrecked. It's a draw!";
-log("Stalemate at sea.", "system");
-}
-enemyGridSub.textContent = "Battle ended.";
-topStatus.textContent = "Mission complete";
-}
+  if (allEnemySunk || allPlayerSunk) {
+    phase = Phase.GAME_OVER;
+    resultBanner.style.display = "block";
+    if (allEnemySunk && !allPlayerSunk) {
+      resultBanner.className = "result-banner win";
+      resultBanner.textContent = "Outstanding! The Navy would be proud!";
+      log("Victory! Uncle Dave salutes you.", "system");
+    } else if (!allEnemySunk && allPlayerSunk) {
+      resultBanner.className = "result-banner lose";
+      resultBanner.textContent = "Back to training, recruit. We don't lose at sea!";
+      log("Defeat. Learn from this mission and try again.", "system");
+    } else {
+      resultBanner.className = "result-banner info";
+      resultBanner.textContent = "Both fleets are wrecked. It's a draw!";
+      log("Stalemate at sea.", "system");
+    }
+    enemyGridSub.textContent = "Battle ended.";
+    topStatus.textContent = "Mission complete";
+  }
 }
 
 // Simple AI: random untargeted cell
 function enemyTurn(){
-if (phase !== Phase.BATTLE) return;
-let candidates = [];
-for (let r=0;r<GRID_SIZE;r++){
-for (let c=0;c<GRID_SIZE;c++){
-const cell = playerGrid[r][c];
-if (!cell.hit && !cell.miss) candidates.push({r,c});
-}
-}
-if (!candidates.length) return;
-const pick = candidates[Math.floor(Math.random()*candidates.length)];
-resolveShot(false, pick.r, pick.c);
+  if (phase !== Phase.BATTLE) return;
+  let candidates = [];
+  for (let r=0;r<GRID_SIZE;r++){
+    for (let c=0;c<GRID_SIZE;c++){
+      const cell = playerGrid[r][c];
+      if (!cell.hit && !cell.miss) candidates.push({r,c});
+    }
+  }
+  if (!candidates.length) return;
+  const pick = candidates[Math.floor(Math.random()*candidates.length)];
+  resolveShot(false, pick.r, pick.c);
 }
 
 // Enemy ship placement
 function autoPlaceEnemyFleet(){
-enemyShips = [];
-let idx = 0;
-for (const def of SHIPS_DEF){
-let placed = false;
-while(!placed){
-const horiz = Math.random() < 0.5;
-const r = Math.floor(Math.random()*GRID_SIZE);
-const c = Math.floor(Math.random()*GRID_SIZE);
-if (!canPlaceShip(enemyGrid, def.size, r, c, horiz)) continue;
-const shipId = idx;
-const cells = placeShip(enemyGrid, shipId, def.size, r, c, horiz);
-enemyShips.push({ id:shipId, name:def.name, cells, sunk:false });
-placed = true;
-idx++;
-}
-}
+  enemyShips = [];
+  let idx = 0;
+  for (const def of SHIPS_DEF){
+    let placed = false;
+    while(!placed){
+      const horiz = Math.random() < 0.5;
+      const r = Math.floor(Math.random()*GRID_SIZE);
+      const c = Math.floor(Math.random()*GRID_SIZE);
+      if (!canPlaceShip(enemyGrid, def.size, r, c, horiz)) continue;
+      const shipId = idx;
+      const cells = placeShip(enemyGrid, shipId, def.size, r, c, horiz);
+      enemyShips.push({ id:shipId, name:def.name, cells, sunk:false });
+      placed = true;
+      idx++;
+    }
+  }
 }
 
 // Controls
 rotateBtn.addEventListener("click", () => {
-horizontal = !horizontal;
-orientationText.textContent = horizontal ? "Horizontal" : "Vertical";
+  horizontal = !horizontal;
+  orientationText.textContent = horizontal ? "Horizontal" : "Vertical";
 });
 
 startBtn.addEventListener("click", () => {
-if (phase !== Phase.DEPLOY) return;
-phase = Phase.BATTLE;
-topStatus.textContent = "Battle underway";
-turnInfo.textContent = "Your turn to fire.";
-enemyGridSub.textContent = "Click a square to fire.";
-shotHint.textContent = "Try to find and sink all 5 ships.";
-redrawBoards();
+  if (phase !== Phase.DEPLOY) return;
+  phase = Phase.BATTLE;
+  topStatus.textContent = "Battle underway";
+  turnInfo.textContent = "Your turn to fire.";
+  enemyGridSub.textContent = "Click a square to fire.";
+  shotHint.textContent = "Try to find and sink all 5 ships.";
+  redrawBoards();
 });
 
 resetBtn.addEventListener("click", initGame);
 
 // Init
 function initGame(){
-phase = Phase.DEPLOY;
-currentShipIndex = 0;
-horizontal = true;
-playerGrid = createGrid();
-enemyGrid = createGrid();
-playerShips = [];
-enemyShips = [];
-resultBanner.style.display = "none";
-resultBanner.className = "result-banner";
+  phase = Phase.DEPLOY;
+  currentShipIndex = 0;
+  horizontal = true;
+  playerGrid = createGrid();
+  enemyGrid = createGrid();
+  playerShips = [];
+  enemyShips = [];
+  resultBanner.style.display = "none";
+  resultBanner.className = "result-banner";
 
-topStatus.textContent = "Phase: Deploy your ships";
-turnInfo.textContent = "Your turn: place the Carrier (5)";
-playerGridSub.textContent = "Click to place each ship on your ocean.";
-enemyGridSub.textContent = "Enemy fleet hidden.";
-shipPlacingText.textContent = "Carrier (size 5)";
-orientationText.textContent = "Horizontal";
-shotHint.textContent = "Enemy grid unlocks once battle starts.";
+  topStatus.textContent = "Phase: Deploy your ships";
+  turnInfo.textContent = "Your turn: place the Carrier (5)";
+  playerGridSub.textContent = "Click to place each ship on your ocean.";
+  enemyGridSub.textContent = "Enemy fleet hidden.";
+  shipPlacingText.textContent = "Carrier (size 5)";
+  orientationText.textContent = "Horizontal";
+  shotHint.textContent = "Enemy grid unlocks once battle starts.";
 
-logPanel.innerHTML = "";
-log("Welcome, Captain. Deploy your fleet to begin.", "system");
+  logPanel.innerHTML = "";
+  log("Welcome, Captain. Deploy your fleet to begin.", "system");
 
-autoPlaceEnemyFleet();
-buildBoards();
+  autoPlaceEnemyFleet();
+  buildBoards();
 }
 
 initGame();
