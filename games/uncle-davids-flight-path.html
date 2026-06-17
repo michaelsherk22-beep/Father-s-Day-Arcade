@@ -189,8 +189,8 @@
       </div>
 
       <div class="panel-sub" style="margin-bottom:4px;">
-  Flight path training with Captain Uncle David 🛫
-</div>
+        Flight path training with Captain Uncle David 🛫
+      </div>
       
       <div class="game-wrapper">
         <canvas id="gameCanvas" width="720" height="360"></canvas>
@@ -208,9 +208,11 @@
 
       <button class="btn primary" id="startBtn">Start Flight</button>
       <button class="btn success" id="resetBtn">Reset</button>
+      <!-- PAUSE: new button -->
+      <button class="btn" id="pauseBtn">Pause</button>
 
       <div class="controls">
-        <div>Keyboard: Arrows / WASD to move, Space for a short speed boost.</div>
+        <div>Keyboard: Arrows / WASD to move, Space for a short speed boost, P to pause/resume.</div>
       </div>
 
       <div class="touch-controls">
@@ -247,6 +249,7 @@ const turnInfo = document.getElementById("turnInfo");
 const hintText = document.getElementById("hintText");
 const startBtn = document.getElementById("startBtn");
 const resetBtn = document.getElementById("resetBtn");
+const pauseBtn = document.getElementById("pauseBtn"); // PAUSE: button ref
 const logPanel = document.getElementById("logPanel");
 const resultBanner = document.getElementById("resultBanner");
 const touchButtons = document.querySelectorAll(".touch-btn");
@@ -254,6 +257,7 @@ const touchButtons = document.querySelectorAll(".touch-btn");
 const GAME_STATE = {
   READY: "ready",
   RUNNING: "running",
+  PAUSED: "paused",   // PAUSE: new state
   OVER: "over"
 };
 
@@ -272,16 +276,13 @@ const plane = {
   boostTime: 0
 };
 
-// NEW: load plane image (adjust path if needed)
+// load plane image
 const planeImg = new Image();
-planeImg.src = "../images/PlaneDrawing.png"; // path relative to this HTML file
+planeImg.src = "../images/PlaneDrawing.png";
 
-// Horizontal scroll speed (world moving left)
 let scrollSpeed = 2.4;
-
 let obstacles = [];
 let clouds = [];
-
 let keys = {};
 
 function log(msg, type="system"){
@@ -310,6 +311,7 @@ function resetGame(){
   hintText.textContent = "Continuous flight. Avoid birds, storms, and mountains. See how far you can go!";
   logPanel.innerHTML = "";
   log("Endless training loaded. Smooth and steady, co-pilot.", "system");
+  pauseBtn.textContent = "Pause"; // PAUSE: reset label
   draw();
 }
 
@@ -351,6 +353,22 @@ function startGame(){
   requestAnimationFrame(gameLoop);
 }
 
+// PAUSE: toggle function
+function togglePause(){
+  if (state === GAME_STATE.RUNNING){
+    state = GAME_STATE.PAUSED;
+    topStatus.textContent = "Paused · " + Math.floor(distance) + " m";
+    pauseBtn.textContent = "Resume";
+    log("Flight paused. Tap Resume or press P to continue.", "system");
+  } else if (state === GAME_STATE.PAUSED){
+    state = GAME_STATE.RUNNING;
+    topStatus.textContent = "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)";
+    pauseBtn.textContent = "Pause";
+    log("Flight resumed. Keep flying!", "system");
+    requestAnimationFrame(gameLoop);
+  }
+}
+
 function gameLoop(){
   if (state !== GAME_STATE.RUNNING) return;
   update();
@@ -364,13 +382,13 @@ function update(){
   else if (keys["ArrowDown"] || keys["KeyS"]) plane.vy = 2.1;
   else plane.vy = 0;
 
-  // gentle horizontal wiggle if player taps left/right (small effect)
+  // gentle horizontal wiggle
   if (keys["ArrowLeft"] || keys["KeyA"]) plane.x -= 0.8;
   if (keys["ArrowRight"] || keys["KeyD"]) plane.x += 0.8;
   if (plane.x < 80) plane.x = 80;
   if (plane.x > canvas.width-80) plane.x = canvas.width-80;
 
-  // boost makes scroll a bit faster but not crazy
+  // boost
   if ((keys["Space"] || keys["KeyK"]) && plane.boostTime <= 0){
     plane.boostTime = 32;
     log("Captain adds a little extra thrust!", "system");
@@ -389,9 +407,11 @@ function update(){
 
   // move world left
   distance += scrollSpeed;
-  topStatus.textContent = "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)";
+  topStatus.textContent = (state === GAME_STATE.RUNNING)
+    ? "In flight · " + Math.floor(distance) + " m (Best: " + Math.floor(bestDistance) + " m)"
+    : topStatus.textContent;
 
-  // move clouds
+  // clouds
   for (const c of clouds){
     c.x -= c.speed;
     if (c.x < -60){
@@ -401,12 +421,11 @@ function update(){
     }
   }
 
-  // move obstacles
+  // obstacles
   for (const o of obstacles){
     o.x -= scrollSpeed;
   }
 
-  // remove off-screen obstacles and add new ones
   obstacles = obstacles.filter(o => o.x > -80);
   while (obstacles.length < 8){
     const lastX = obstacles.length ? Math.max(...obstacles.map(o=>o.x)) : canvas.width;
@@ -425,9 +444,10 @@ function update(){
     if (rectHit(planeRect.x,planeRect.y,planeRect.w,planeRect.h, o.x,o.y,o.w,o.h)){
       crash(o.type);
       return;
-  } }
+    }
+  }
 
-  // very gentle difficulty ramp: slightly more obstacles every 400 m
+  // slight difficulty ramp
   if (distance > 400 && obstacles.length < 10){
     const lastX = Math.max(...obstacles.map(o=>o.x));
     obstacles.push(makeObstacleAt(lastX + 90 + Math.random()*60));
@@ -449,25 +469,21 @@ function crash(type){
 }
 
 function draw(){
-  // sky
   const grd = ctx.createLinearGradient(0,0,0,canvas.height);
   grd.addColorStop(0,"#0ea5e9");
   grd.addColorStop(1,"#1d4ed8");
   ctx.fillStyle = grd;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // clouds
   ctx.fillStyle = "rgba(255,255,255,0.9)";
   for (const c of clouds){
     drawCloud(c.x,c.y,c.r);
   }
 
-  // obstacles
   for (const o of obstacles){
     drawObstacle(o);
   }
 
-  // plane (draw image instead of triangle)
   drawPlane(plane.x,plane.y);
 }
 
@@ -514,19 +530,15 @@ function drawObstacle(o){
   }
 }
 
-// UPDATED drawPlane to use the sprite
 function drawPlane(x,y){
-  const w = 80;  // adjust to taste
-  const h = 60;  // adjust to taste
+  const w = 80;
+  const h = 60;
 
-  // only draw once the image is loaded
   if (planeImg.complete && planeImg.naturalWidth > 0) {
     ctx.save();
-    // center the image around (x,y)
     ctx.drawImage(planeImg, x - w/2, y - h/2, w, h);
     ctx.restore();
   } else {
-    // fallback: simple placeholder if image hasn't loaded yet
     ctx.save();
     ctx.translate(x,y);
     ctx.fillStyle = "#e5e7eb";
@@ -548,7 +560,15 @@ function drawPlane(x,y){
 window.addEventListener("keydown", e=>{
   if (e.code === "Space") e.preventDefault();
   keys[e.code] = true;
+
+  // PAUSE: keyboard toggle with P
+  if (e.code === "KeyP"){
+    if (state === GAME_STATE.RUNNING || state === GAME_STATE.PAUSED){
+      togglePause();
+    }
+  }
 });
+
 window.addEventListener("keyup", e=>{
   keys[e.code] = false;
 });
@@ -580,6 +600,7 @@ function applyTouch(dir){
 // buttons
 startBtn.addEventListener("click", startGame);
 resetBtn.addEventListener("click", resetGame);
+pauseBtn.addEventListener("click", togglePause); // PAUSE: button handler
 
 window.addEventListener("DOMContentLoaded", resetGame);
 </script>
