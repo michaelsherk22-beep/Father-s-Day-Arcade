@@ -20,12 +20,10 @@ body{
   overflow-x:hidden;
 }
 
-/* ── ANIMATED BACKGROUND ── */
 .bg-stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .bg-star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,2s) infinite alternate;}
 @keyframes twinkle{0%{opacity:.1;transform:scale(1);}100%{opacity:.8;transform:scale(1.4);}}
 
-/* ── HEADER ── */
 header{
   position:relative;z-index:2;
   text-align:center;padding:18px 12px 10px;
@@ -38,7 +36,6 @@ header{
   background:linear-gradient(135deg,#f9a8d4,#ec4899,#f59e0b);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
-  text-shadow:none;
   filter:drop-shadow(0 0 18px rgba(236,72,153,0.6));
 }
 .header-sub{font-size:.82rem;color:var(--muted);margin-top:2px;letter-spacing:.1em;}
@@ -53,7 +50,6 @@ header{
 .hstat-val{font-weight:800;color:var(--gold);font-size:.95rem;}
 .stars-display{font-size:1rem;letter-spacing:2px;}
 
-/* ── MAIN LAYOUT ── */
 .main{
   position:relative;z-index:2;
   display:grid;
@@ -63,7 +59,6 @@ header{
 }
 @media(max-width:860px){.main{grid-template-columns:1fr;}}
 
-/* ── PANEL ── */
 .panel{
   background:var(--panel);border-radius:16px;
   border:1px solid var(--border);padding:10px 11px;
@@ -76,7 +71,6 @@ header{
   padding-bottom:5px;display:flex;align-items:center;gap:6px;
 }
 
-/* ── POSTER ── */
 .poster{
   border-radius:12px;overflow:hidden;
   border:2px solid var(--pink);
@@ -90,7 +84,6 @@ header{
   pointer-events:none;
 }
 
-/* ── THEME CARD ── */
 .theme-card{
   background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(124,58,237,0.2));
   border:1.5px solid var(--pink);border-radius:12px;
@@ -111,12 +104,10 @@ header{
   text-transform:uppercase;letter-spacing:.08em;
 }
 
-/* ── SCORE BAR ── */
 .sbar-wrap{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;}
 .sbar{height:100%;border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);
   background:linear-gradient(90deg,var(--pink),var(--gold));}
 
-/* ── LOG ── */
 .log{
   background:rgba(0,0,0,0.4);border-radius:10px;border:1px solid var(--border);
   padding:6px 8px;max-height:130px;overflow-y:auto;
@@ -128,7 +119,6 @@ header{
 .le-bad{color:#fca5a5;}
 .le-fab{color:var(--gold);font-weight:700;}
 
-/* ── BUTTONS ── */
 .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
 .btn{
   border-radius:999px;border:1.5px solid var(--border);
@@ -143,9 +133,6 @@ header{
 .btn.gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a0533;border-color:var(--gold);}
 .btn.outline{background:transparent;border-color:var(--muted);color:var(--muted);}
 
-/* ══════════════════════════════════
-   CENTER STAGE
-══════════════════════════════════ */
 #stage{
   border-radius:16px;
   border:2px solid var(--pink);
@@ -156,7 +143,6 @@ header{
              0 0 40px rgba(124,58,237,0.15);
 }
 
-/* Animated stage floor */
 .stage-floor{
   position:absolute;bottom:0;left:0;right:0;height:80px;
   background:linear-gradient(180deg,transparent,rgba(245,158,11,0.15));
@@ -166,7 +152,6 @@ header{
   width:120px;height:100%;
   background:linear-gradient(180deg,transparent,rgba(245,158,11,0.08));
 }
-/* Animated runway lights */
 .runway-lights{
   position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
   display:flex;gap:18px;
@@ -183,7 +168,6 @@ header{
 .rlight:nth-child(5){animation-delay:.8s;}
 @keyframes lightPulse{0%{opacity:.3;transform:scale(1);}100%{opacity:1;transform:scale(1.3);}}
 
-/* Stage spotlight beams */
 .spotlight{
   position:absolute;top:0;width:100px;height:60%;
   background:linear-gradient(180deg,rgba(245,158,11,0.07),transparent);
@@ -194,7 +178,6 @@ header{
 .spotlight:nth-child(2){right:5%;animation-delay:-3s;}
 @keyframes spotMove{0%{transform:skewX(-8deg);}100%{transform:skewX(8deg);}}
 
-/* Floating sparkles */
 .sparkle-particle{
   position:absolute;pointer-events:none;
   animation:floatUp var(--d,3s) linear infinite;
@@ -207,7 +190,6 @@ header{
   100%{opacity:0;transform:translateY(-300px) rotate(360deg);}
 }
 
-/* ── MANNEQUIN ── */
 #mannequin{
   position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
   width:130px;text-align:center;
@@ -215,7 +197,6 @@ header{
 .manne-figure{
   position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
 }
-/* Head */
 .manne-head{
   width:46px;height:46px;border-radius:50%;
   background:radial-gradient(circle at 35% 35%,#b45309,#78350f);
@@ -225,14 +206,12 @@ header{
   display:flex;align-items:center;justify-content:center;
   font-size:1.2rem;
 }
-/* Hair */
 .manne-hair{
   width:52px;height:14px;margin-bottom:-14px;z-index:4;
   background:linear-gradient(180deg,#3d1a00,#1a0800);
   border-radius:20px 20px 0 0;
 }
 
-/* SLOT base */
 .mslot{
   border-radius:10px;
   border:2.5px dashed;
@@ -261,31 +240,58 @@ header{
 .mslot.wrong-shake{animation:shake .3s ease;}
 @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
 
-/* Individual slot sizes & colors */
 #slot-top   {width:72px;height:66px;border-color:var(--pink);color:var(--pink);}
 #slot-bottom{width:68px;height:62px;border-color:var(--purple);color:var(--purple);margin-top:-2px;}
 #slot-shoes {width:64px;height:46px;border-color:var(--teal);color:var(--teal);margin-top:-2px;}
 #slot-acc   {width:50px;height:40px;border-color:var(--gold);color:var(--gold);margin-top:3px;}
 
-/* ── COMPLETION OVERLAY ── */
+/* ══ COMPLETION OVERLAY — updated with outfit showcase ══ */
 #completionOverlay{
   position:absolute;inset:0;
-  background:rgba(15,5,32,0.88);
+  background:rgba(15,5,32,0.92);
   display:none;align-items:center;justify-content:center;
-  flex-direction:column;gap:10px;z-index:20;
-  border-radius:14px;backdrop-filter:blur(4px);
+  flex-direction:column;gap:8px;z-index:20;
+  border-radius:14px;backdrop-filter:blur(6px);
+  padding:16px;
 }
 #completionOverlay.show{display:flex;}
-.comp-emoji{font-size:3.5rem;animation:bounce .6s ease infinite alternate;}
+.comp-emoji{font-size:3rem;animation:bounce .6s ease infinite alternate;}
 @keyframes bounce{0%{transform:scale(1) rotate(-5deg);}100%{transform:scale(1.2) rotate(5deg);}}
 .comp-title{font-size:1.5rem;font-weight:900;
   background:linear-gradient(135deg,#f9a8d4,#f59e0b);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.comp-theme-label{
+  font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;
+}
+.comp-stars{font-size:1.6rem;letter-spacing:4px;}
 .comp-score{font-size:1rem;color:var(--gold);font-weight:700;}
-.comp-stars{font-size:1.8rem;letter-spacing:4px;}
-.comp-sub{font-size:.8rem;color:var(--muted);}
 
-/* ── INSTRUCTION TOOLTIP ── */
+/* Outfit showcase grid */
+.outfit-showcase{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  margin:4px 0;
+}
+.outfit-piece{
+  background:rgba(26,8,54,0.9);
+  border-radius:12px;
+  padding:8px 10px;
+  text-align:center;
+  min-width:62px;
+  border:2px solid rgba(124,58,237,0.4);
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  position:relative;
+}
+.outfit-piece.matched{border-color:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.5);}
+.outfit-piece.unmatched{border-color:rgba(239,68,68,0.5);}
+.outfit-piece-emoji{font-size:2rem;line-height:1;}
+.outfit-piece-name{font-size:.52rem;color:var(--text);font-weight:600;line-height:1.2;}
+.outfit-piece-slot{font-size:.48rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.outfit-piece-badge{
+  font-size:.6rem;margin-top:1px;
+}
+.comp-outfit-num{font-size:.68rem;color:var(--muted);}
+.comp-next-hint{font-size:.75rem;color:var(--muted);font-style:italic;}
+
 #instruction{
   position:absolute;top:10px;left:50%;transform:translateX(-50%);
   background:rgba(236,72,153,0.9);color:#fff;
@@ -294,9 +300,6 @@ header{
   transition:opacity .3s;letter-spacing:.05em;
 }
 
-/* ══════════════════════════════════
-   WARDROBE PANEL
-══════════════════════════════════ */
 .cat-tabs{display:flex;gap:4px;flex-wrap:wrap;}
 .cat-tab{
   padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:700;
@@ -346,7 +349,6 @@ header{
 .badge-shoes {background:rgba(6,182,212,0.3);color:var(--teal);}
 .badge-acc   {background:rgba(245,158,11,0.3);color:var(--gold);}
 
-/* match indicator on card */
 .match-dot{
   position:absolute;top:4px;right:4px;width:8px;height:8px;
   border-radius:50%;display:none;
@@ -358,10 +360,8 @@ header{
 </head>
 <body>
 
-<!-- Animated starfield -->
 <div class="bg-stars" id="bgStars"></div>
 
-<!-- Header -->
 <header>
   <div class="header-title">✨ Catalina's Fashion Studio ✨</div>
   <div class="header-sub">Create · Style · Inspire 💖 Fashion is my Superpower</div>
@@ -379,11 +379,10 @@ header{
   <aside class="panel">
     <div class="panel-title">✨ Catalina</div>
     <div class="poster">
-  <img src="../images/Catalina Fashion Stylist.png" alt="Catalina"/>
-  <div class="poster-glow"></div>
-</div>
+      <img src="../images/Catalina Fashion Stylist.png" alt="Catalina"/>
+      <div class="poster-glow"></div>
+    </div>
 
-    <!-- Current theme -->
     <div class="theme-card" id="themeCard">
       <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Current Theme</div>
       <div class="theme-name" id="themeName">Press Start!</div>
@@ -405,7 +404,6 @@ header{
       <button class="btn outline" id="btnClear">✕ Clear</button>
     </div>
 
-    <!-- How to play -->
     <div style="font-size:.72rem;color:var(--muted);line-height:1.7;background:rgba(0,0,0,.3);border-radius:8px;padding:8px;">
       <span style="color:var(--pink);font-weight:700;">How to Play</span><br/>
       1. See the <b style="color:#fff;">Theme</b> — match it!<br/>
@@ -429,8 +427,6 @@ header{
         <div class="rlight"></div><div class="rlight"></div>
       </div>
 
-      <!-- Floating sparkle particles injected by JS -->
-
       <div id="instruction">👆 Select an item from the wardrobe →</div>
 
       <!-- Mannequin -->
@@ -438,7 +434,6 @@ header{
         <div class="manne-figure">
           <div class="manne-hair"></div>
           <div class="manne-head">😊</div>
-
           <div class="mslot" id="slot-top"    data-label="Top"       onclick="fillSlot('top')">
             <span id="icon-top">👕</span>
           </div>
@@ -454,13 +449,21 @@ header{
         </div>
       </div>
 
-      <!-- Completion overlay -->
+      <!-- UPDATED Completion Overlay -->
       <div id="completionOverlay">
         <div class="comp-emoji" id="compEmoji">💖</div>
         <div class="comp-title" id="compTitle">Flawless!</div>
         <div class="comp-stars" id="compStars">⭐⭐⭐⭐⭐</div>
         <div class="comp-score" id="compScore">+500 Style Points!</div>
-        <div class="comp-sub">Next look loading…</div>
+
+        <!-- Theme label -->
+        <div class="comp-theme-label" id="compThemeLabel">Theme: —</div>
+
+        <!-- ★ NEW: Outfit Showcase ★ -->
+        <div class="outfit-showcase" id="outfitShowcase"></div>
+
+        <div class="comp-outfit-num" id="compOutfitNum">Outfit #1</div>
+        <div class="comp-next-hint">Next look loading…</div>
       </div>
     </div>
   </section>
@@ -496,9 +499,9 @@ for(let i=0;i<120;i++){
   bgStars.appendChild(s);
 }
 
-// ── FLOATING SPARKLES on stage ────────────────────────
+// ── FLOATING SPARKLES ────────────────────────────────
 const stage = document.getElementById('stage');
-['✨','💫','⭐','🌟','💖','💎'].forEach((char,i)=>{
+['✨','💫','⭐','🌟','💖','💎'].forEach((char)=>{
   const el=document.createElement('div'); el.className='sparkle-particle';
   el.textContent=char;
   el.style.cssText=`left:${10+Math.random()*80}%;bottom:${Math.random()*30}%;
@@ -518,7 +521,6 @@ const ITEMS=[
   {id:'t7',name:'Sporty Hoodie', type:'top',   emoji:'🏃',tags:['sport','casual','street']},
   {id:'t8',name:'Silk Blouse',   type:'top',   emoji:'🎀',tags:['chic','formal','night','garden']},
   {id:'t9',name:'Varsity Tee',   type:'top',   emoji:'⭐',tags:['sport','retro','casual']},
-
   {id:'b1',name:'Houndstooth',   type:'bottom',emoji:'🖤',tags:['chic','street','retro']},
   {id:'b2',name:'Pink Mini',     type:'bottom',emoji:'🩷',tags:['glam','casual','spring','party']},
   {id:'b3',name:'Sequin Pants',  type:'bottom',emoji:'✨',tags:['glam','night','party']},
@@ -528,7 +530,6 @@ const ITEMS=[
   {id:'b7',name:'Floral Skirt',  type:'bottom',emoji:'🌺',tags:['spring','garden','casual']},
   {id:'b8',name:'Black Slacks',  type:'bottom',emoji:'🎩',tags:['chic','formal','night','royal']},
   {id:'b9',name:'Plaid Skirt',   type:'bottom',emoji:'🟥',tags:['retro','chic','school']},
-
   {id:'s1',name:'Pink Sneakers', type:'shoes', emoji:'👟',tags:['street','casual','sport','party']},
   {id:'s2',name:'Gold Heels',    type:'shoes', emoji:'👠',tags:['glam','night','party','formal','royal']},
   {id:'s3',name:'Purple Boots',  type:'shoes', emoji:'🥾',tags:['street','retro','chic','night']},
@@ -537,7 +538,6 @@ const ITEMS=[
   {id:'s6',name:'White Kicks',   type:'shoes', emoji:'🤍',tags:['sport','casual','street']},
   {id:'s7',name:'Glitter Boots', type:'shoes', emoji:'⚡',tags:['glam','party','royal']},
   {id:'s8',name:'Sandals',       type:'shoes', emoji:'🌊',tags:['casual','spring','garden','beach']},
-
   {id:'a1',name:'Fashion Bag',   type:'acc',   emoji:'👜',tags:['chic','glam','street','night']},
   {id:'a2',name:'Style Wand',    type:'acc',   emoji:'🪄',tags:['glam','royal','party']},
   {id:'a3',name:'Sunglasses',    type:'acc',   emoji:'🕶️',tags:['street','casual','retro','beach']},
@@ -563,6 +563,7 @@ const THEMES=[
 ];
 
 const SLOT_DEFAULTS = {top:'👕',bottom:'👖',shoes:'👟',acc:'👜'};
+const SLOT_LABELS   = {top:'Top',bottom:'Bottom',shoes:'Shoes',acc:'Accessory'};
 const PTS_ITEM=100, PTS_THEME=80, PTS_PERFECT=600, PTS_GREAT=300;
 
 let score=0,level=1,outfits=0,gameActive=false;
@@ -571,17 +572,16 @@ let slots={top:null,bottom:null,shoes:null,acc:null};
 let usedIds=new Set(), currentFilter='all';
 let levelThreshold=1200;
 
-// DOM refs
-const scoreEl   =document.getElementById('scoreEl');
-const levelEl   =document.getElementById('levelEl');
-const outfitsEl =document.getElementById('outfitsEl');
-const starsEl   =document.getElementById('starsEl');
-const sbar      =document.getElementById('sbar');
-const logEl     =document.getElementById('logEl');
-const btnSubmit =document.getElementById('btnSubmit');
-const instEl    =document.getElementById('instruction');
-const selHint   =document.getElementById('selectionHint');
-const compOverlay=document.getElementById('completionOverlay');
+const scoreEl    = document.getElementById('scoreEl');
+const levelEl    = document.getElementById('levelEl');
+const outfitsEl  = document.getElementById('outfitsEl');
+const starsEl    = document.getElementById('starsEl');
+const sbar       = document.getElementById('sbar');
+const logEl      = document.getElementById('logEl');
+const btnSubmit  = document.getElementById('btnSubmit');
+const instEl     = document.getElementById('instruction');
+const selHint    = document.getElementById('selectionHint');
+const compOverlay= document.getElementById('completionOverlay');
 
 function log(msg,kind='sys'){
   const d=document.createElement('div');
@@ -593,7 +593,6 @@ function setInstruction(msg){instEl.textContent=msg;}
 
 function setStars(n){
   starsEl.textContent='⭐'.repeat(n)+'☆'.repeat(5-n);
-  // Animated star display in overlay
   document.getElementById('compStars').textContent='⭐'.repeat(n)+'☆'.repeat(5-n);
 }
 
@@ -643,11 +642,8 @@ function filterCat(cat,el){
 function selectItem(item){
   if(!gameActive) return;
   selectedItem=item;
-
-  // Highlight the correct slot on mannequin
   ['top','bottom','shoes','acc'].forEach(s=>{
-    const el=document.getElementById(`slot-${s}`);
-    el.classList.remove('highlight');
+    document.getElementById(`slot-${s}`).classList.remove('highlight');
   });
   document.getElementById(`slot-${item.type}`).classList.add('highlight');
 
@@ -656,7 +652,6 @@ function selectItem(item){
   setInstruction(`${item.emoji} ${item.name} selected — click the ${item.type.toUpperCase()} slot!`);
   selHint.textContent=`${item.emoji} ${item.name} — ${matchTxt}`;
   selHint.style.color=matchesTheme?'#86efac':'#fca5a5';
-
   log(`Selected: ${item.emoji} ${item.name} (${matchTxt})`,'sys');
   renderWardrobe();
 }
@@ -677,7 +672,6 @@ function fillSlot(slotType){
     return;
   }
 
-  // Place item
   slots[slotType]=selectedItem;
   usedIds.add(selectedItem.id);
   document.getElementById(`icon-${slotType}`).textContent=selectedItem.emoji;
@@ -698,11 +692,31 @@ function fillSlot(slotType){
     btnSubmit.disabled=false;
     log('All slots filled! Submit your look! 💅','fab');
   }
-  // Clear all highlights
   ['top','bottom','shoes','acc'].forEach(s=>{
     document.getElementById(`slot-${s}`).classList.remove('highlight');
   });
   renderWardrobe();
+}
+
+// ── BUILD OUTFIT SHOWCASE ─────────────────────────────
+function buildOutfitShowcase(){
+  const showcase = document.getElementById('outfitShowcase');
+  showcase.innerHTML = '';
+  const slotOrder = ['top','bottom','shoes','acc'];
+  slotOrder.forEach(slotType => {
+    const item = slots[slotType];
+    if(!item) return;
+    const matched = item.tags.includes(currentTheme.tag);
+    const piece = document.createElement('div');
+    piece.className = 'outfit-piece ' + (matched ? 'matched' : 'unmatched');
+    piece.innerHTML = `
+      <div class="outfit-piece-emoji">${item.emoji}</div>
+      <div class="outfit-piece-name">${item.name}</div>
+      <div class="outfit-piece-slot">${SLOT_LABELS[slotType]}</div>
+      <div class="outfit-piece-badge">${matched ? '✅' : '❌'}</div>
+    `;
+    showcase.appendChild(piece);
+  });
 }
 
 // ── SUBMIT ────────────────────────────────────────────
@@ -737,16 +751,22 @@ btnSubmit.onclick=()=>{
   setStars(stars);
   updateLevelBar();
 
-  // Show completion overlay
+  // Populate overlay
   document.getElementById('compEmoji').textContent=emoji;
   document.getElementById('compTitle').textContent=title;
   document.getElementById('compScore').textContent=`+${pts} Style Points!`;
+  document.getElementById('compThemeLabel').textContent=`Theme: ${currentTheme.name}`;
+  document.getElementById('compOutfitNum').textContent=`Outfit #${outfits}`;
+
+  // Build the outfit showcase
+  buildOutfitShowcase();
+
   compOverlay.classList.add('show');
 
   setTimeout(()=>{
     compOverlay.classList.remove('show');
     nextTheme();
-  },2800);
+  }, 3800);
 };
 
 // ── CLEAR ─────────────────────────────────────────────
@@ -769,7 +789,6 @@ function clearOutfit(){
 // ── NEXT THEME ────────────────────────────────────────
 function nextTheme(){
   clearOutfit();
-  // Don't repeat same theme twice in a row
   const pool=THEMES.filter(t=>t!==currentTheme);
   currentTheme=pool[Math.floor(Math.random()*pool.length)];
   document.getElementById('themeName').textContent=currentTheme.name;
